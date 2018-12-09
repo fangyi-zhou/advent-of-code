@@ -31,7 +31,7 @@ main :: IO ()
 main = interact $ show . solve . parse
 
 parse :: String -> (Int, Int)
-parse s = (players, finalP)
+parse s = (players, finalP * 100)
   where
     (players', rest) = span isDigit s
     players = read players'
