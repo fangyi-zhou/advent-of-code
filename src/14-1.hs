@@ -12,6 +12,12 @@ solve n = concatMap show [results M.! idx | idx <- [n..n+9]]
     mk 0 = (M.fromList [(0, 3), (1, 7)], (0, 1, 2))
     mk x = case mk (x-1) of
              (acc, (idx1, idx2, max)) ->
-               if acc M.! idx1 + acc M.! idx2 >= 10
-                  then (M.insert (max+1) ((acc M.! idx1 + acc M.! idx2) `mod` 10) $ M.insert max 1 acc, ((1 + idx1 + acc M.! idx1) `mod` (max + 2), (1 + idx2 + acc M.! idx2) `mod` (max + 2), max + 2))
-                  else (M.insert max (acc M.! idx1 + acc M.! idx2) acc, ((1 + idx1 + acc M.! idx1) `mod` (max + 1), (1 + idx2 + acc M.! idx2) `mod` (max + 1), max + 1))
+               let v1 = acc M.! idx1
+                   v2 = acc M.! idx2
+                   v1' = (1 + idx1 + v1) `mod` max'
+                   v2' = (1 + idx2 + v2) `mod` max'
+                   max' = if v1 + v2 >= 10 then max + 2 else max + 1
+               in
+               if v1 + v2 >= 10
+                  then (M.insert (max+1) ((v1 + v2) `mod` 10) $ M.insert max 1 acc, (v1', v2', max'))
+                  else (M.insert max (v1 + v2) acc, (v1', v2', max'))
