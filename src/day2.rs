@@ -55,7 +55,7 @@ pub fn solve_part2(input: &Vec<i32>) -> i32 {
             let working_input = input.clone();
             let working_input = set_mode(working_input, noun, verb);
             let result = run(working_input);
-            if (result == 19690720) {
+            if result == 19690720 {
                 return 100 * noun + verb;
             }
         }
