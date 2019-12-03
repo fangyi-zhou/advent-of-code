@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::i32;
 use std::ops::Add;
 use std::str::FromStr;
@@ -142,6 +142,26 @@ fn make_trace(mut it: CircuitIterator) -> HashSet<Point> {
     points
 }
 
+fn make_trace_with_steps(mut it: CircuitIterator) -> (HashSet<Point>, HashMap<Point, i32>) {
+    let mut points = HashSet::new();
+    let mut steps = HashMap::new();
+    let mut pos = Point::new(0, 0);
+    let mut step = 0;
+    loop {
+        if let Some(dir) = it.next_dir() {
+            pos = dir.move_in_dir(pos);
+            step += 1;
+            points.insert(pos);
+            if !steps.contains_key(&pos) {
+                steps.insert(pos, step);
+            }
+        } else {
+            break;
+        }
+    }
+    (points, steps)
+}
+
 #[aoc(day3, part1)]
 pub fn solve_part1(input: &Vec<Vec<Waypoint>>) -> i32 {
     let circuit1 = CircuitIterator::new(&input[0]);
@@ -151,4 +171,17 @@ pub fn solve_part1(input: &Vec<Vec<Waypoint>>) -> i32 {
     trace1
         .intersection(&trace2)
         .fold(i32::max_value(), |mini, pt| i32::min(mini, pt.man_dist()))
+}
+
+#[aoc(day3, part2)]
+pub fn solve_part2(input: &Vec<Vec<Waypoint>>) -> i32 {
+    let circuit1 = CircuitIterator::new(&input[0]);
+    let circuit2 = CircuitIterator::new(&input[1]);
+    let (trace1, steps1) = make_trace_with_steps(circuit1);
+    let (trace2, steps2) = make_trace_with_steps(circuit2);
+    trace1
+        .intersection(&trace2)
+        .fold(i32::max_value(), |mini, pt| {
+            i32::min(mini, steps1.get(&pt).unwrap() + steps2.get(&pt).unwrap())
+        })
 }
