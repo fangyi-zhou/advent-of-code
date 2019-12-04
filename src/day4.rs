@@ -4,7 +4,7 @@ pub fn input_generator(input: &str) -> (i32, i32) {
     (numbers[0], numbers[1])
 }
 
-fn is_valid_pw_part1(num: &i32) -> bool {
+fn is_valid_pw_part1(num: i32) -> bool {
     let mut has_adj_identical = false;
     let mut prev = num % 10;
     let mut num_ = num / 10;
@@ -22,7 +22,7 @@ fn is_valid_pw_part1(num: &i32) -> bool {
     has_adj_identical
 }
 
-fn is_valid_pw_part2(num: &i32) -> bool {
+fn is_valid_pw_part2(num: i32) -> bool {
     let mut pass_adj_rule = false;
     let mut prev = num % 10;
     let mut prev_count = 1;
@@ -50,24 +50,26 @@ fn is_valid_pw_part2(num: &i32) -> bool {
     pass_adj_rule
 }
 
+#[allow(clippy::trivially_copy_pass_by_ref)]
 #[aoc(day4, part1)]
 pub fn solve_part1(range: &(i32, i32)) -> i32 {
-    let (start, finish) = range;
+    let (start, finish) = *range;
     let mut count = 0;
-    for i in *start..*finish {
-        if is_valid_pw_part1(&i) {
+    for i in start..finish {
+        if is_valid_pw_part1(i) {
             count += 1
         }
     }
     count
 }
 
+#[allow(clippy::trivially_copy_pass_by_ref)]
 #[aoc(day4, part2)]
 pub fn solve_part2(range: &(i32, i32)) -> i32 {
-    let (start, finish) = range;
+    let (start, finish) = *range;
     let mut count = 0;
-    for i in *start..*finish {
-        if is_valid_pw_part2(&i) {
+    for i in start..finish {
+        if is_valid_pw_part2(i) {
             count += 1;
         }
     }

@@ -14,7 +14,7 @@ impl Point {
         Point { x, y }
     }
 
-    fn man_dist(&self) -> i32 {
+    fn man_dist(self) -> i32 {
         i32::abs(self.x) + i32::abs(self.y)
     }
 }
@@ -39,7 +39,7 @@ enum Dir {
 }
 
 impl Dir {
-    fn step(&self) -> Point {
+    fn step(self) -> Point {
         match &self {
             Dir::U => Point::new(1, 0),
             Dir::D => Point::new(-1, 0),
@@ -48,7 +48,7 @@ impl Dir {
         }
     }
 
-    fn move_in_dir(&self, point: Point) -> Point {
+    fn move_in_dir(self, point: Point) -> Point {
         self.step() + point
     }
 }
@@ -97,13 +97,13 @@ pub fn input_generator(input: &str) -> Vec<Vec<Waypoint>> {
 }
 
 struct CircuitIterator<'a> {
-    waypoints: &'a Vec<Waypoint>,
+    waypoints: &'a [Waypoint],
     idx: usize,
     curr_steps: i32,
 }
 
 impl CircuitIterator<'_> {
-    fn new(waypoints: &Vec<Waypoint>) -> CircuitIterator {
+    fn new(waypoints: &[Waypoint]) -> CircuitIterator {
         CircuitIterator {
             waypoints,
             idx: 0,
@@ -111,11 +111,11 @@ impl CircuitIterator<'_> {
         }
     }
 
-    fn next_dir<'a>(&'a mut self) -> Option<Dir> {
+    fn next_dir(&mut self) -> Option<Dir> {
         if self.idx >= self.waypoints.len() {
             None
         } else {
-            let first = self.waypoints.get(self.idx).unwrap();
+            let first = &self.waypoints[self.idx];
             if self.curr_steps < first.steps {
                 self.curr_steps += 1;
             }
@@ -131,13 +131,9 @@ impl CircuitIterator<'_> {
 fn make_trace(mut it: CircuitIterator) -> HashSet<Point> {
     let mut points = HashSet::new();
     let mut pos = Point::new(0, 0);
-    loop {
-        if let Some(dir) = it.next_dir() {
-            pos = dir.move_in_dir(pos);
-            points.insert(pos);
-        } else {
-            break;
-        }
+    while let Some(dir) = it.next_dir() {
+        pos = dir.move_in_dir(pos);
+        points.insert(pos);
     }
     points
 }
@@ -147,23 +143,17 @@ fn make_trace_with_steps(mut it: CircuitIterator) -> (HashSet<Point>, HashMap<Po
     let mut steps = HashMap::new();
     let mut pos = Point::new(0, 0);
     let mut step = 0;
-    loop {
-        if let Some(dir) = it.next_dir() {
-            pos = dir.move_in_dir(pos);
-            step += 1;
-            points.insert(pos);
-            if !steps.contains_key(&pos) {
-                steps.insert(pos, step);
-            }
-        } else {
-            break;
-        }
+    while let Some(dir) = it.next_dir() {
+        pos = dir.move_in_dir(pos);
+        step += 1;
+        points.insert(pos);
+        steps.entry(pos).or_insert(step);
     }
     (points, steps)
 }
 
 #[aoc(day3, part1)]
-pub fn solve_part1(input: &Vec<Vec<Waypoint>>) -> i32 {
+pub fn solve_part1(input: &[Vec<Waypoint>]) -> i32 {
     let circuit1 = CircuitIterator::new(&input[0]);
     let circuit2 = CircuitIterator::new(&input[1]);
     let trace1 = make_trace(circuit1);
@@ -174,7 +164,7 @@ pub fn solve_part1(input: &Vec<Vec<Waypoint>>) -> i32 {
 }
 
 #[aoc(day3, part2)]
-pub fn solve_part2(input: &Vec<Vec<Waypoint>>) -> i32 {
+pub fn solve_part2(input: &[Vec<Waypoint>]) -> i32 {
     let circuit1 = CircuitIterator::new(&input[0]);
     let circuit2 = CircuitIterator::new(&input[1]);
     let (trace1, steps1) = make_trace_with_steps(circuit1);

@@ -4,20 +4,20 @@ pub fn input_generator(input: &str) -> Vec<i32> {
 }
 
 #[aoc(day1, part1)]
-pub fn solve_part1(input: &Vec<i32>) -> i32 {
-    input.into_iter().map(|x| x / 3 - 2).sum()
+pub fn solve_part1(input: &[i32]) -> i32 {
+    input.iter().map(|x| x / 3 - 2).sum()
 }
 
-fn get_cost(x: &i32) -> i32 {
+fn get_cost(x: i32) -> i32 {
     let cost = x / 3 - 2;
     if cost <= 0 {
         0
     } else {
-        cost + get_cost(&cost)
+        cost + get_cost(cost)
     }
 }
 
 #[aoc(day1, part2)]
-pub fn solve_part2(input: &Vec<i32>) -> i32 {
-    input.into_iter().map(|x| get_cost(&x)).sum()
+pub fn solve_part2(input: &[i32]) -> i32 {
+    input.iter().map(|x| get_cost(*x)).sum()
 }
