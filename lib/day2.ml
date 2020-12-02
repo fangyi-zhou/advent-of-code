@@ -31,3 +31,9 @@ let day2 inputs =
   let answer2 = part2 parsed in
   print_endline (Int.to_string answer1) ;
   print_endline (Int.to_string answer2)
+
+let example = "1-3 a: abcde\n1-3 b: cdefg\n2-9 c: ccccccccc"
+
+let%expect_test _ = day2 example ; [%expect {|
+    2
+    1 |}]

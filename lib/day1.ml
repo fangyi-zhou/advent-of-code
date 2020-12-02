@@ -28,3 +28,9 @@ let day1 inputs =
   let answer2 = part2 nums in
   print_endline (Int.to_string answer1) ;
   print_endline (Int.to_string answer2)
+
+let example = "1721\n979\n366\n299\n675\n1456"
+
+let%expect_test _ = day1 example ; [%expect {|
+    514579
+    241861950 |}]
