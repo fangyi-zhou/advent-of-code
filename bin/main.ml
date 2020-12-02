@@ -8,6 +8,9 @@ let () =
   let file = In_channel.create input_file in
   let inputs = In_channel.input_all file in
   let () =
-    match day with "1" -> Day1.day1 inputs | _ -> failwith "Invalid day"
+    match day with
+    | "1" -> Day1.day1 inputs
+    | "2" -> Day2.day2 inputs
+    | _ -> failwith "Invalid day"
   in
   In_channel.close file
