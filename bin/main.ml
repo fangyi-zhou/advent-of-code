@@ -7,12 +7,12 @@ let () =
   let input_file = Printf.sprintf "inputs/%s.in" day in
   let file = In_channel.create input_file in
   let inputs = In_channel.input_all file in
-  let () =
+  let (module Day : Day.S) =
     match day with
-    | "1" -> Day1.day1 inputs
-    | "2" -> Day2.day2 inputs
-    | "3" -> Day3.day3 inputs
-    | "4" -> Day4.day4 inputs
-    | _ -> failwith "Invalid day"
+    | "1" -> (module Day1)
+    | "2" -> (module Day2)
+    | "3" -> (module Day3)
+    | "4" -> (module Day4)
+    | _ -> failwith "invalid day"
   in
-  In_channel.close file
+  Day.run inputs ; In_channel.close file

@@ -1,119 +1,117 @@
 open! Base
 open! Stdio
 
-type passport =
-  { byr: string option
-  ; iyr: string option
-  ; eyr: string option
-  ; hgt: string option
-  ; hcl: string option
-  ; ecl: string option
-  ; pid: string option
-  ; cid: string option }
+module M = struct
+  type passport =
+    { byr: string option
+    ; iyr: string option
+    ; eyr: string option
+    ; hgt: string option
+    ; hcl: string option
+    ; ecl: string option
+    ; pid: string option
+    ; cid: string option }
 
-let new_passport =
-  { byr= None
-  ; iyr= None
-  ; eyr= None
-  ; hgt= None
-  ; hcl= None
-  ; ecl= None
-  ; pid= None
-  ; cid= None }
+  type t = passport list
 
-let process_passport (acc, curr) line =
-  if String.is_empty line then (curr :: acc, new_passport)
-  else
-    let entries = String.split ~on:' ' line in
-    let f passport entry =
-      match String.split ~on:':' entry with
-      | [k; v] -> (
-        match k with
-        | "byr" -> {passport with byr= Some v}
-        | "iyr" -> {passport with iyr= Some v}
-        | "eyr" -> {passport with eyr= Some v}
-        | "hgt" -> {passport with hgt= Some v}
-        | "hcl" -> {passport with hcl= Some v}
-        | "ecl" -> {passport with ecl= Some v}
-        | "pid" -> {passport with pid= Some v}
-        | "cid" -> {passport with cid= Some v}
-        | _ -> assert false )
-      | _ -> assert false
+  let new_passport =
+    { byr= None
+    ; iyr= None
+    ; eyr= None
+    ; hgt= None
+    ; hcl= None
+    ; ecl= None
+    ; pid= None
+    ; cid= None }
+
+  let process_passport (acc, curr) line =
+    if String.is_empty line then (curr :: acc, new_passport)
+    else
+      let entries = String.split ~on:' ' line in
+      let f passport entry =
+        match String.split ~on:':' entry with
+        | [k; v] -> (
+          match k with
+          | "byr" -> {passport with byr= Some v}
+          | "iyr" -> {passport with iyr= Some v}
+          | "eyr" -> {passport with eyr= Some v}
+          | "hgt" -> {passport with hgt= Some v}
+          | "hcl" -> {passport with hcl= Some v}
+          | "ecl" -> {passport with ecl= Some v}
+          | "pid" -> {passport with pid= Some v}
+          | "cid" -> {passport with cid= Some v}
+          | _ -> assert false )
+        | _ -> assert false
+      in
+      let curr = List.fold ~init:curr ~f entries in
+      (acc, curr)
+
+  let parse inputs =
+    let lines = String.split ~on:'\n' inputs in
+    let data, last =
+      List.fold ~init:([], new_passport) ~f:process_passport lines
     in
-    let curr = List.fold ~init:curr ~f entries in
-    (acc, curr)
+    let data = List.rev (last :: data) in
+    data
 
-let validate_passport byr iyr eyr hgt hcl ecl pid cid passport =
-  byr passport.byr && iyr passport.iyr && eyr passport.eyr
-  && hgt passport.hgt && hcl passport.hcl && ecl passport.ecl
-  && pid passport.pid && cid passport.cid
+  let validate_passport ~byr ~iyr ~eyr ~hgt ~hcl ~ecl ~pid ~cid passport =
+    byr passport.byr && iyr passport.iyr && eyr passport.eyr
+    && hgt passport.hgt && hcl passport.hcl && ecl passport.ecl
+    && pid passport.pid && cid passport.cid
 
-let part1 data =
-  let f =
-    validate_passport Option.is_some Option.is_some Option.is_some
-      Option.is_some Option.is_some Option.is_some Option.is_some (fun _ ->
-        true)
-  in
-  List.count ~f data
+  let part1 data =
+    let f =
+      validate_passport ~byr:Option.is_some ~iyr:Option.is_some
+        ~eyr:Option.is_some ~hgt:Option.is_some ~hcl:Option.is_some
+        ~ecl:Option.is_some ~pid:Option.is_some ~cid:(fun _ -> true)
+    in
+    let ans = List.count ~f data in
+    print_endline (Int.to_string ans)
 
-let part2 data =
-  let num_range_suffix mini maxi suffix str_opt =
-    try
-      let str = Option.value_exn str_opt in
-      let str = String.chop_suffix_exn str ~suffix in
-      let num = Int.of_string str in
-      num >= mini && num <= maxi
-    with _ -> false
-  in
-  let num_range mini maxi str = num_range_suffix mini maxi "" str in
-  let hair_color str_opt =
-    match str_opt with
-    | Some str ->
-        let is_hex ch =
-          Char.((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f'))
-        in
-        String.length str = 7
-        && Char.equal str.[0] '#'
-        && List.for_all [1; 2; 3; 4; 5; 6] ~f:(fun idx -> is_hex str.[idx])
-    | None -> false
-  in
-  let eye_color = function
-    | Some ("amb" | "blu" | "brn" | "gry" | "grn" | "hzl" | "oth") -> true
-    | _ -> false
-  in
-  let passport_id = function
-    | Some str ->
-        String.length str = 9
-        && String.for_all ~f:(fun ch -> Char.(ch >= '0' && ch <= '9')) str
-    | None -> false
-  in
-  let f =
-    validate_passport (num_range 1920 2002) (num_range 2010 2020)
-      (num_range 2020 2030)
-      (fun s ->
-        num_range_suffix 150 193 "cm" s || num_range_suffix 59 76 "in" s)
-      hair_color eye_color passport_id
-      (fun _ -> true)
-  in
-  List.count ~f data
+  let part2 data =
+    let num_range_suffix mini maxi suffix str_opt =
+      try
+        let str = Option.value_exn str_opt in
+        let str = String.chop_suffix_exn str ~suffix in
+        let num = Int.of_string str in
+        num >= mini && num <= maxi
+      with _ -> false
+    in
+    let num_range mini maxi str = num_range_suffix mini maxi "" str in
+    let hcl str_opt =
+      match str_opt with
+      | Some str ->
+          let is_hex ch =
+            Char.((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f'))
+          in
+          String.length str = 7
+          && Char.equal str.[0] '#'
+          && List.for_all [1; 2; 3; 4; 5; 6] ~f:(fun idx -> is_hex str.[idx])
+      | None -> false
+    in
+    let ecl = function
+      | Some ("amb" | "blu" | "brn" | "gry" | "grn" | "hzl" | "oth") -> true
+      | _ -> false
+    in
+    let pid = function
+      | Some str ->
+          String.length str = 9
+          && String.for_all ~f:(fun ch -> Char.(ch >= '0' && ch <= '9')) str
+      | None -> false
+    in
+    let f =
+      validate_passport ~byr:(num_range 1920 2002) ~iyr:(num_range 2010 2020)
+        ~eyr:(num_range 2020 2030)
+        ~hgt:(fun s ->
+          num_range_suffix 150 193 "cm" s || num_range_suffix 59 76 "in" s)
+        ~hcl ~ecl ~pid
+        ~cid:(fun _ -> true)
+    in
+    let ans = List.count ~f data in
+    print_endline (Int.to_string ans)
+end
 
-let day4 ?only_part1 ?only_part2 inputs =
-  let lines = String.split ~on:'\n' inputs in
-  let data, last =
-    List.fold ~init:([], new_passport) ~f:process_passport lines
-  in
-  let data = List.rev (last :: data) in
-  let () =
-    if Option.is_none only_part2 then
-      let answer1 = part1 data in
-      print_endline (Int.to_string answer1)
-  in
-  let () =
-    if Option.is_none only_part1 then
-      let answer2 = part2 data in
-      print_endline (Int.to_string answer2)
-  in
-  ()
+include Day.Make (M)
 
 let example_1 =
   "ecl:gry pid:860033327 eyr:2020 hcl:#fffffd\n\
@@ -151,13 +149,13 @@ let example_3 =
    iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719"
 
 let%expect_test _ =
-  day4 ~only_part1:true example_1 ;
+  run ~only_part1:true example_1 ;
   [%expect {|2|}]
 
 let%expect_test _ =
-  day4 ~only_part2:true example_2 ;
+  run ~only_part2:true example_2 ;
   [%expect {|0|}]
 
 let%expect_test _ =
-  day4 ~only_part2:true example_3 ;
+  run ~only_part2:true example_3 ;
   [%expect {|4|}]
