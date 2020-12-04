@@ -41,4 +41,6 @@ let example =
    #...##....#\n\
    .#..#...#.#"
 
-let%expect_test _ = day3 example ; [%expect {|7 336|}]
+let%expect_test _ = day3 example ; [%expect {|
+  7
+  336|}]
