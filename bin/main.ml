@@ -12,6 +12,7 @@ let () =
     | "1" -> Day1.day1 inputs
     | "2" -> Day2.day2 inputs
     | "3" -> Day3.day3 inputs
+    | "4" -> Day4.day4 inputs
     | _ -> failwith "Invalid day"
   in
   In_channel.close file
