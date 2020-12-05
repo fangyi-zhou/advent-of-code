@@ -1,4 +1,4 @@
 (executable
  (public_name aoc)
  (name main)
- (libraries aoc))
+ (libraries cohttp-lwt-unix aoc))
