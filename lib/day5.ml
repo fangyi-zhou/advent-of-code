@@ -2,9 +2,7 @@ open! Base
 open! Stdio
 
 module M = struct
-  type t = string list
-
-  let parse = String.split ~on:'\n'
+  type t = int list
 
   let parse_entry entry =
     let entry =
@@ -13,6 +11,11 @@ module M = struct
         entry
     in
     Int.of_string ("0b" ^ entry)
+
+  let parse inputs =
+    let entries = String.split ~on:'\n' inputs in
+    let entries = List.map ~f:parse_entry entries in
+    entries
 
   let%expect_test _ =
     print_endline (Int.to_string @@ parse_entry "FBFBBFFRLR") ;
@@ -26,11 +29,20 @@ module M = struct
       820|}]
 
   let part1 entries =
-    let entries = List.map ~f:parse_entry entries in
     let ans = List.max_elt ~compare entries in
     print_endline (Int.to_string @@ Option.value_exn ans)
 
-  let part2 _ = ()
+  let part2 entries =
+    let sorted = List.sort ~compare entries in
+    match sorted with
+    | [] -> assert false
+    | hd :: tl ->
+        let f last curr =
+          if last + 1 = curr then
+            Base__.Container_intf.Continue_or_stop.Continue curr
+          else Stop (print_endline (Int.to_string (last + 1)))
+        in
+        List.fold_until ~init:hd ~f ~finish:(fun _ -> assert false) tl
 end
 
 include Day.Make (M)
