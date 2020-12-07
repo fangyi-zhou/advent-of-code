@@ -36,12 +36,12 @@ module M = struct
       ~init:(Map.empty (module String), Map.empty (module String))
       ~f lines
 
-  let part1 (deps, _) =
+  let part1 (rdeps, _) =
     let init = Set.singleton (module String) "shiny gold" in
     let rec fixpoint curr =
       let updated = ref false in
       let f acc elem =
-        let nexts = Option.value ~default:[] (Map.find deps elem) in
+        let nexts = Option.value ~default:[] (Map.find rdeps elem) in
         List.fold ~init:acc
           ~f:(fun acc next ->
             if Set.mem acc next then acc
