@@ -37,23 +37,25 @@ module M = struct
     | _ -> assert false
 
   let part2 imem =
-    let f idx instr =
-      match instr with
-      | "acc", _ -> Base__.Container_intf.Continue_or_stop.Continue (idx + 1)
-      | "jmp", delta | "nop", delta -> (
-          let new_instr =
-            ((if String.equal (fst instr) "jmp" then "nop" else "jmp"), delta)
-          in
-          imem.(idx) <- new_instr ;
-          match eval imem with
-          | `Loop _ ->
-              imem.(idx) <- instr ;
-              Base__.Container_intf.Continue_or_stop.Continue (idx + 1)
-          | `Terminated acc -> Stop acc )
-      | _ -> assert false
-    in
     let ans =
-      Array.fold_until ~init:0 ~f ~finish:(fun _ -> assert false) imem
+      Array.fold_until ~init:0
+        ~f:(fun idx instr ->
+          match instr with
+          | "acc", _ -> Continue (idx + 1)
+          | "jmp", delta | "nop", delta -> (
+              let new_instr =
+                ( (if String.equal (fst instr) "jmp" then "nop" else "jmp")
+                , delta )
+              in
+              imem.(idx) <- new_instr ;
+              match eval imem with
+              | `Loop _ ->
+                  imem.(idx) <- instr ;
+                  Continue (idx + 1)
+              | `Terminated acc -> Stop acc )
+          | _ -> assert false)
+        ~finish:(fun _ -> assert false)
+        imem
     in
     print_endline (Int.to_string ans)
 end

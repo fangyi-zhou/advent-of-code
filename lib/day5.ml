@@ -37,12 +37,12 @@ module M = struct
     match sorted with
     | [] -> assert false
     | hd :: tl ->
-        let f last curr =
-          if last + 1 = curr then
-            Base__.Container_intf.Continue_or_stop.Continue curr
-          else Stop (print_endline (Int.to_string (last + 1)))
-        in
-        List.fold_until ~init:hd ~f ~finish:(fun _ -> assert false) tl
+        List.fold_until ~init:hd
+          ~f:(fun last curr ->
+            if last + 1 = curr then Continue curr
+            else Stop (print_endline (Int.to_string (last + 1))))
+          ~finish:(fun _ -> assert false)
+          tl
 end
 
 include Day.Make (M)
