@@ -1,5 +1,4 @@
-open! Base
-open! Stdio
+open! Imports
 
 module M = struct
   type t = (int * int * char * string) list
@@ -23,7 +22,7 @@ module M = struct
           count >= mini && count <= maxi)
         entries
     in
-    print_endline (Int.to_string ans)
+    print_endline_int ans
 
   let part2 entries =
     let ans =
@@ -35,7 +34,7 @@ module M = struct
                (Char.equal pwd.[pos2 - 1] letter))
         entries
     in
-    print_endline (Int.to_string ans)
+    print_endline_int ans
 end
 
 include Day.Make (M)

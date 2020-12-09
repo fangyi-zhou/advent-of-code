@@ -1,5 +1,4 @@
-open! Base
-open! Stdio
+open! Imports
 
 module M = struct
   type t = string list list
@@ -22,7 +21,7 @@ module M = struct
     in
     let sets = List.map ~f entries in
     let ans = List.sum (module Int) ~f:Set.length sets in
-    print_endline (Int.to_string ans)
+    print_endline_int ans
 
   let inter_list = function
     | [] -> assert false

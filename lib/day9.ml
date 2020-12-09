@@ -1,5 +1,4 @@
-open! Base
-open! Stdio
+open! Imports
 
 module M = struct
   type t = int list
@@ -33,7 +32,7 @@ module M = struct
 
   let part1 nums =
     let ans = part1_with_capacity ~capacity nums in
-    print_endline (Int.to_string ans)
+    print_endline_int ans
 
   let part2_with_capacity ~capacity nums =
     let subseq_sum = part1_with_capacity ~capacity nums in
@@ -61,7 +60,7 @@ module M = struct
 
   let part2 nums =
     let ans = part2_with_capacity ~capacity nums in
-    print_endline (Int.to_string ans)
+    print_endline_int ans
 end
 
 include M
@@ -92,9 +91,9 @@ let example =
 let%expect_test _ =
   let nums = parse example in
   let ans1 = part1_with_capacity ~capacity:5 nums in
-  print_endline (Int.to_string ans1) ;
+  print_endline_int ans1 ;
   let ans2 = part2_with_capacity ~capacity:5 nums in
-  print_endline (Int.to_string ans2) ;
+  print_endline_int ans2 ;
   [%expect {|
     127
     62

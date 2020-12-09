@@ -1,5 +1,4 @@
-open! Base
-open! Stdio
+open! Imports
 
 module M = struct
   type instr = string * int
@@ -33,7 +32,7 @@ module M = struct
 
   let part1 imem =
     match eval imem with
-    | `Loop ans -> print_endline (Int.to_string ans)
+    | `Loop ans -> print_endline_int ans
     | _ -> assert false
 
   let part2 imem =
@@ -57,7 +56,7 @@ module M = struct
         ~finish:(fun _ -> assert false)
         imem
     in
-    print_endline (Int.to_string ans)
+    print_endline_int ans
 end
 
 include Day.Make (M)

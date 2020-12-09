@@ -1,5 +1,4 @@
-open! Base
-open! Stdio
+open! Imports
 
 module M = struct
   type passport =
@@ -66,7 +65,7 @@ module M = struct
         ~ecl:Option.is_some ~pid:Option.is_some ~cid:(fun _ -> true)
     in
     let ans = List.count ~f data in
-    print_endline (Int.to_string ans)
+    print_endline_int ans
 
   let part2 data =
     let num_range_suffix mini maxi suffix str_opt =
@@ -108,7 +107,7 @@ module M = struct
         ~cid:(fun _ -> true)
     in
     let ans = List.count ~f data in
-    print_endline (Int.to_string ans)
+    print_endline_int ans
 end
 
 include Day.Make (M)

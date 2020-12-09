@@ -1,5 +1,4 @@
-open! Base
-open! Stdio
+open! Imports
 
 module M = struct
   type t = int list
@@ -18,10 +17,10 @@ module M = struct
     entries
 
   let%expect_test _ =
-    print_endline (Int.to_string @@ parse_entry "FBFBBFFRLR") ;
-    print_endline (Int.to_string @@ parse_entry "BFFFBBFRRR") ;
-    print_endline (Int.to_string @@ parse_entry "FFFBBBFRRR") ;
-    print_endline (Int.to_string @@ parse_entry "BBFFBBFRLL") ;
+    print_endline_int @@ parse_entry "FBFBBFFRLR" ;
+    print_endline_int @@ parse_entry "BFFFBBFRRR" ;
+    print_endline_int @@ parse_entry "FFFBBBFRRR" ;
+    print_endline_int @@ parse_entry "BBFFBBFRLL" ;
     [%expect {|
       357
       567
@@ -30,7 +29,7 @@ module M = struct
 
   let part1 entries =
     let ans = List.max_elt ~compare entries in
-    print_endline (Int.to_string @@ Option.value_exn ans)
+    print_endline_int @@ Option.value_exn ans
 
   let part2 entries =
     let sorted = List.sort ~compare entries in
@@ -40,7 +39,7 @@ module M = struct
         List.fold_until ~init:hd
           ~f:(fun last curr ->
             if last + 1 = curr then Continue curr
-            else Stop (print_endline (Int.to_string (last + 1))))
+            else Stop (print_endline_int (last + 1)))
           ~finish:(fun _ -> assert false)
           tl
 end

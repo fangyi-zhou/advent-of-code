@@ -1,5 +1,4 @@
-open! Base
-open! Stdio
+open! Imports
 
 module M = struct
   type t = string list
@@ -21,13 +20,13 @@ module M = struct
 
   let part1 lines =
     let ans = traverse lines (3, 1) in
-    print_endline (Int.to_string ans)
+    print_endline_int ans
 
   let part2 lines =
     let patterns = [(1, 1); (3, 1); (5, 1); (7, 1); (1, 2)] in
     let trees = List.map ~f:(traverse lines) patterns in
     let ans = List.fold ~init:1 ~f:(fun x y -> x * y) trees in
-    print_endline (Int.to_string ans)
+    print_endline_int ans
 end
 
 include Day.Make (M)

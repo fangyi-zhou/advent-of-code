@@ -1,5 +1,4 @@
-open! Base
-open! Stdio
+open! Imports
 
 module M = struct
   type t = string list Map.M(String).t * (int * string) list Map.M(String).t
@@ -55,7 +54,7 @@ module M = struct
     in
     let fp = fixpoint init in
     let ans = Set.length fp - 1 (* Remove shiny gold *) in
-    print_endline (Int.to_string ans)
+    print_endline_int ans
 
   let part2 (_, deps) =
     let cache = ref (Map.empty (module String)) in
@@ -75,7 +74,7 @@ module M = struct
           ans
     in
     let ans = cost "shiny gold" - 1 (* remove shiny gold *) in
-    print_endline (Int.to_string ans)
+    print_endline_int ans
 end
 
 include Day.Make (M)

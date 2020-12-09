@@ -1,5 +1,4 @@
-open! Base
-open! Stdio
+open! Imports
 
 module M = struct
   type t = Set.M(Int).t
@@ -20,7 +19,7 @@ module M = struct
 
   let part1 nums =
     let ans = Option.value_exn (sum2 2020 nums) in
-    print_endline (Int.to_string ans)
+    print_endline_int ans
 
   let part2 nums =
     let ans =
@@ -32,7 +31,7 @@ module M = struct
         ~finish:(fun _ -> assert false)
         nums
     in
-    print_endline (Int.to_string ans)
+    print_endline_int ans
 end
 
 include M
