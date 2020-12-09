@@ -64,6 +64,7 @@ module M = struct
     print_endline (Int.to_string ans)
 end
 
+include M
 include Day.Make (M)
 
 let example =

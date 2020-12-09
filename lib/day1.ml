@@ -35,6 +35,7 @@ module M = struct
     print_endline (Int.to_string ans)
 end
 
+include M
 include Day.Make (M)
 
 let example = "1721\n979\n366\n299\n675\n1456"
