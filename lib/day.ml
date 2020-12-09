@@ -13,9 +13,11 @@ module type Impl = sig
 end
 
 module Make (Impl : Impl) : S = struct
+  include Impl
+
   let run ?(only_part1 = false) ?(only_part2 = false) inputs =
-    let parsed = Impl.parse inputs in
-    let () = if not only_part2 then Impl.part1 parsed in
-    let () = if not only_part1 then Impl.part2 parsed in
+    let parsed = parse inputs in
+    let () = if not only_part2 then part1 parsed in
+    let () = if not only_part1 then part2 parsed in
     ()
 end
