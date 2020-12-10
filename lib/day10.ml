@@ -10,7 +10,8 @@ module M = struct
   let part1 devices =
     let sorted = List.sort ~compare devices in
     let diff1, diff3, _ =
-      List.fold ~init:(0, 1, 0) (* always have +3 in the end *)
+      List.fold
+        ~init:(0, 1, 0) (* always have +3 in the end *)
         ~f:(fun (diff1, diff3, last) curr ->
           if curr = last + 1 then (diff1 + 1, diff3, curr)
           else if curr = last + 3 then (diff1, diff3 + 1, curr)
@@ -20,7 +21,28 @@ module M = struct
     let ans = diff1 * diff3 in
     print_endline_int ans
 
-  let part2 _ = ()
+  let part2 devices =
+    let devices = Set.of_list (module Int) devices in
+    let cache = ref (Map.empty (module Int)) in
+    let rec combs jolt =
+      match jolt with
+      | 0 -> 1
+      | jolt when jolt < 0 -> 0
+      | jolt -> (
+        (* Memoisation *)
+        match Map.find !cache jolt with
+        | Some comb -> comb
+        | None ->
+            if Set.mem devices jolt then (
+              let comb =
+                combs (jolt - 1) + combs (jolt - 2) + combs (jolt - 3)
+              in
+              cache := Map.add_exn ~key:jolt ~data:comb !cache ;
+              comb )
+            else 0 )
+    in
+    let ans = combs (Set.max_elt_exn devices) in
+    print_endline_int ans
 end
 
 include Day.Make (M)
@@ -60,6 +82,10 @@ let example2 =
    10\n\
    3"
 
-let%expect_test _ = run example1 ; [%expect {| 35 |}]
+let%expect_test _ = run example1 ; [%expect {|
+  35
+  8 |}]
 
-let%expect_test _ = run example2 ; [%expect {| 220 |}]
+let%expect_test _ = run example2 ; [%expect {|
+  220
+  19208 |}]
