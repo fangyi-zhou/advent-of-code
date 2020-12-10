@@ -93,8 +93,7 @@ let%expect_test _ =
   let ans1 = part1_with_capacity ~capacity:5 nums in
   print_endline_int ans1 ;
   let ans2 = part2_with_capacity ~capacity:5 nums in
-  print_endline_int ans2 ;
-  [%expect {|
+  print_endline_int ans2 ; [%expect {|
     127
     62
               |}]
