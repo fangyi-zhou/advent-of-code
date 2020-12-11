@@ -36,21 +36,12 @@ module M = struct
    *     Stdio.print_endline ""
    *   ) tiles
    *)
+  let count_occupied =
+    Array.sum
+      (module Int)
+      ~f:(Array.sum (module Int) ~f:(function Occupied -> 1 | _ -> 0))
 
-  let part1 (original, dimx, dimy) =
-    let new_tile old x y = function
-      | Floor -> Floor
-      | curr ->
-          let occupied_counts =
-            List.count
-              ~f:(fun (dx, dy) ->
-                try Poly.(old.(x + dx).(y + dy) = Occupied) with _ -> false)
-              neighbours
-          in
-          if occupied_counts = 0 && Poly.(curr = Empty) then Occupied
-          else if occupied_counts >= 4 && Poly.(curr = Occupied) then Empty
-          else curr
-    in
+  let fixpoint original ~dimx ~dimy ~new_tile =
     let rec compute old =
       let curr = Array.make_matrix ~dimx ~dimy Empty in
       let updated = ref false in
@@ -69,16 +60,51 @@ module M = struct
        * Stdio.print_endline "---" ; *)
       if !updated then compute curr else curr
     in
-    let final = compute original in
-    let ans =
-      Array.sum
-        (module Int)
-        ~f:(Array.sum (module Int) ~f:(function Occupied -> 1 | _ -> 0))
-        final
+    compute original
+
+  let part1 (original, dimx, dimy) =
+    let new_tile old x y = function
+      | Floor -> Floor
+      | curr ->
+          let occupied_counts =
+            List.count
+              ~f:(fun (dx, dy) ->
+                try Poly.(old.(x + dx).(y + dy) = Occupied) with _ -> false)
+              neighbours
+          in
+          if occupied_counts = 0 && Poly.(curr = Empty) then Occupied
+          else if occupied_counts >= 4 && Poly.(curr = Occupied) then Empty
+          else curr
     in
+    let final = fixpoint ~dimx ~dimy ~new_tile original in
+    let ans = count_occupied final in
     print_endline_int ans
 
-  let part2 _ = ()
+  let part2 (original, dimx, dimy) =
+    let new_tile old x y = function
+      | Floor -> Floor
+      | curr ->
+          let occupied_counts =
+            List.count
+              ~f:(fun (dx, dy) ->
+                try
+                  let rec aux idx =
+                    match old.(x + (idx * dx)).(y + (idx * dy)) with
+                    | Floor -> aux (idx + 1)
+                    | Empty -> false
+                    | Occupied -> true
+                  in
+                  aux 1
+                with _ -> false)
+              neighbours
+          in
+          if occupied_counts = 0 && Poly.(curr = Empty) then Occupied
+          else if occupied_counts >= 5 && Poly.(curr = Occupied) then Empty
+          else curr
+    in
+    let final = fixpoint ~dimx ~dimy ~new_tile original in
+    let ans = count_occupied final in
+    print_endline_int ans
 end
 
 include Day.Make (M)
@@ -95,4 +121,6 @@ let example =
    L.LLLLLL.L\n\
    L.LLLLL.LL"
 
-let%expect_test _ = run example ; [%expect {|37|}]
+let%expect_test _ = run example ; [%expect {|
+  37
+  26|}]
