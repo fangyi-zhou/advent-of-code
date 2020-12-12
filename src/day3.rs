@@ -68,7 +68,7 @@ impl Waypoint {
 impl FromStr for Waypoint {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let dir_char = s.chars().nth(0).unwrap();
+        let dir_char = s.chars().next().unwrap();
         let dir = match dir_char {
             'U' => Ok(Dir::U),
             'D' => Ok(Dir::D),

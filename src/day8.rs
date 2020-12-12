@@ -18,7 +18,7 @@ struct Count {
 }
 
 impl Count {
-    fn new(input: &String) -> Count {
+    fn new(input: &str) -> Count {
         let mut zero = 0;
         let mut one = 0;
         let mut two = 0;
@@ -42,7 +42,7 @@ fn overlay_ch(ch1: char, ch2: char) -> char {
     }
 }
 
-fn overlay(layer1: &String, layer2: &String) -> Box<String> {
+fn overlay(layer1: &str, layer2: &str) -> Box<String> {
     let s = layer1
         .chars()
         .zip(layer2.chars())
@@ -55,7 +55,7 @@ fn overlay(layer1: &String, layer2: &String) -> Box<String> {
 pub fn solve_part1(input: &[String]) -> i32 {
     let min_layer = input
         .iter()
-        .map(Count::new)
+        .map(|s| Count::new(s))
         .min_by(|x, y| x.zero.cmp(&y.zero))
         .unwrap();
     min_layer.one * min_layer.two

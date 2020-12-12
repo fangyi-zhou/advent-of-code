@@ -118,10 +118,10 @@ impl IntMachine {
 
 fn run_with_config(program: &[i32], config: &[i32]) -> i32 {
     let mut input_val = 0;
-    for i in 0..5 {
+    for config in config.iter().take(5) {
         let mut program_copy = program.to_owned();
         let mut machine = IntMachine::new(program_copy.as_mut());
-        machine.input(config[i]);
+        machine.input(*config);
         machine.input(input_val);
         machine.run();
         input_val = machine.output().unwrap();
@@ -131,10 +131,10 @@ fn run_with_config(program: &[i32], config: &[i32]) -> i32 {
 
 fn run_with_config_forever(program: &[i32], config: &[i32]) -> i32 {
     let mut machines = Vec::new();
-    for i in 0..5 {
+    for config in config.iter().take(5) {
         let mut program_copy = program.to_owned().clone();
         let mut machine = IntMachine::new(program_copy.as_mut());
-        machine.input(config[i]);
+        machine.input(*config);
         machines.push(machine);
     }
     machines[0].input(0);
