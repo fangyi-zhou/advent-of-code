@@ -10,7 +10,7 @@ pub fn solve_part1(input: &[i32]) -> i32 {
     let mut machine = IntMachine::new(input.clone().as_ref());
     machine.input(1);
     machine.run();
-    machine.outputs.pop_back().unwrap()
+    machine.outputs.pop_back().unwrap() as i32
 }
 
 #[aoc(day5, part2)]
@@ -19,5 +19,5 @@ pub fn solve_part2(input: &[i32]) -> i32 {
     let mut machine = IntMachine::new(input.clone().as_ref());
     machine.input(5);
     machine.run();
-    machine.outputs.pop_back().unwrap()
+    machine.outputs.pop_back().unwrap() as i32
 }

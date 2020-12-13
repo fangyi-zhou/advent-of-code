@@ -10,12 +10,12 @@ fn run_with_config(program: &[i32], config: &[i32]) -> i32 {
     for config in config.iter().take(5) {
         let mut program_copy = program.to_owned();
         let mut machine = IntMachine::new(program_copy.as_mut());
-        machine.input(*config);
+        machine.input((*config).into());
         machine.input(input_val);
         machine.run();
         input_val = machine.output().unwrap();
     }
-    input_val
+    input_val as i32
 }
 
 fn run_with_config_forever(program: &[i32], config: &[i32]) -> i32 {
@@ -23,7 +23,7 @@ fn run_with_config_forever(program: &[i32], config: &[i32]) -> i32 {
     for config in config.iter().take(5) {
         let mut program_copy = program.to_owned().clone();
         let mut machine = IntMachine::new(program_copy.as_mut());
-        machine.input(*config);
+        machine.input((*config).into());
         machines.push(machine);
     }
     machines[0].input(0);
@@ -40,7 +40,7 @@ fn run_with_config_forever(program: &[i32], config: &[i32]) -> i32 {
             break;
         }
     }
-    machines[0].inputs.pop_front().unwrap()
+    machines[0].inputs.pop_front().unwrap() as i32
 }
 
 fn generate_config(start: i32, end: i32) -> Vec<Vec<i32>> {
