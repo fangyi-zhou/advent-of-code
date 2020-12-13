@@ -8,3 +8,9 @@ module String = struct
 
   let iteri ~f str = ignore (fold ~init:0 ~f:(fun i x -> f i x ; i + 1) str)
 end
+
+module List = struct
+  include List
+
+  let product = List.fold ~init:1 ~f:( * )
+end
