@@ -13,4 +13,8 @@ module List = struct
   include List
 
   let product = List.fold ~init:1 ~f:( * )
+
+  let fold1 ~f = function
+    | [] -> assert false
+    | hd :: tl -> List.fold ~init:hd ~f tl
 end

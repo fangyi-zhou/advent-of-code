@@ -38,18 +38,14 @@ module M = struct
 
   let part2 (_, intervals) =
     let ans =
-      match intervals with
-      | (prime, modulo) :: rest ->
-          let f (curr, multiples) (prime, modulo) =
-            let rec aux curr =
-              if (curr + modulo) % prime = 0 then curr
-              else aux (curr + multiples)
-            in
-            (aux curr, multiples * prime)
-          in
-          let ans, _ = List.fold ~init:(modulo, prime) ~f rest in
-          ans
-      | _ -> assert false
+      let f (multiples, curr) (prime, modulo) =
+        let rec aux curr =
+          if (curr + modulo) % prime = 0 then curr else aux (curr + multiples)
+        in
+        (multiples * prime, aux curr)
+      in
+      let _, ans = List.fold1 ~f intervals in
+      ans
     in
     print_endline_int ans
 end

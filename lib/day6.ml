@@ -23,9 +23,7 @@ module M = struct
     let ans = List.sum (module Int) ~f:Set.length sets in
     print_endline_int ans
 
-  let inter_list = function
-    | [] -> assert false
-    | hd :: tl -> List.fold ~init:hd ~f:Set.inter tl
+  let inter_list = List.fold1 ~f:Set.inter
 
   let part1 = process @@ Set.union_list (module Char)
 
