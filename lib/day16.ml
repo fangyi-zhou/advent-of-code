@@ -63,10 +63,27 @@ module M = struct
     print_endline_int ans
 
   let take_one lst full_lst =
-    List.map
-      ~f:(fun (v, data) ->
-        ((v, data), List.Assoc.remove ~equal:String.equal full_lst v))
-      lst
+    let lst = Set.to_list lst in
+    List.map ~f:(fun v -> (v, Set.remove full_lst v)) lst
+
+  module Description = struct
+    module M = struct
+      type t = description
+
+      let compare (v1, _) (v2, _) = String.compare v1 v2
+
+      let sexp_of_t (v1, ((v2, v3), (v4, v5))) =
+        Sexp.List
+          [ String.sexp_of_t v1
+          ; Int.sexp_of_t v2
+          ; Int.sexp_of_t v3
+          ; Int.sexp_of_t v4
+          ; Int.sexp_of_t v5 ]
+    end
+
+    include M
+    include Comparator.Make (M)
+  end
 
   let part2 (descriptions, your_ticket, nearby_tickets) =
     let is_invalid ticket =
@@ -80,26 +97,45 @@ module M = struct
         ~f:(fun desc -> List.for_all ~f:(fun v -> field_match (v, desc)) col)
         descs
     in
+    let possible_descs =
+      List.map ~f:(fun col -> filter_descs col descriptions) all_tickets
+    in
+    let possible_descs, tickets =
+      let zipped = List.zip_exn possible_descs all_tickets in
+      let sorted =
+        List.sort
+          ~compare:(fun (a, _) (b, _) ->
+            Int.compare (List.length a) (List.length b))
+          zipped
+      in
+      List.unzip sorted
+    in
     let correct_description =
-      let rec aux determined tickets descs =
-        match tickets with
+      let rec aux determined possible_descs descs =
+        match possible_descs with
         | [] -> Some (List.rev determined)
         | col :: rest_cols -> (
-            let possible_descs = filter_descs col descs in
-            if List.is_empty possible_descs then None
+            let possible_descs = Set.of_list (module Description) col in
+            let possible_descs = Set.inter possible_descs descs in
+            if Set.is_empty possible_descs then None
             else
               match
                 List.filter_map
                   ~f:(fun (determined_desc, descs) ->
-                    aux (determined_desc :: determined) rest_cols descs)
+                    aux
+                      (determined_desc :: determined)
+                      rest_cols
+                      (Set.remove descs determined_desc))
                   (take_one possible_descs descs)
               with
               | [] -> None
               | [ans] -> Some ans
               | _ -> assert false )
       in
-      Option.value_exn (aux [] all_tickets descriptions)
+      let descs = Set.of_list (module Description) descriptions in
+      Option.value_exn (aux [] possible_descs descs)
     in
+    let your_ticket = List.hd_exn (List.transpose_exn tickets) in
     let ans =
       List.fold ~init:1
         ~f:(fun acc ((desc, _), value) ->
