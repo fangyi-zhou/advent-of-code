@@ -5,7 +5,9 @@ module M = struct
 
   type range = int * int
 
-  type t = (string * range * range) list * ticket * ticket list
+  type description = string * (range * range)
+
+  type t = description list * ticket * ticket list
 
   let parse inputs =
     let parse_int_list line =
@@ -21,7 +23,7 @@ module M = struct
       let name, rest = String.rsplit2_exn line ~on:':' in
       match String.split ~on:' ' rest with
       | [_; range1; _; range2] ->
-          (name, parse_range range1, parse_range range2)
+          (name, (parse_range range1, parse_range range2))
       | _ -> assert false
     in
     let lines = String.split ~on:'\n' inputs in
@@ -40,19 +42,8 @@ module M = struct
 
   let range_match value (mini, maxi) = value >= mini && value <= maxi
 
-  let field_match (value, (_, range1, range2)) =
+  let field_match (value, (_, (range1, range2))) =
     range_match value range1 || range_match value range2
-
-  let rec interleave elem = function
-    | [] -> Sequence.singleton [elem]
-    | hd :: tl ->
-        Sequence.append
-          (Sequence.singleton (elem :: hd :: tl))
-          (Sequence.map ~f:(fun l -> hd :: l) (interleave elem tl))
-
-  let rec permute = function
-    | [] -> Sequence.singleton []
-    | hd :: tl -> Sequence.concat_map ~f:(interleave hd) (permute tl)
 
   let match_any value descriptions =
     List.exists ~f:(fun desc -> field_match (value, desc)) descriptions
@@ -71,26 +62,47 @@ module M = struct
     in
     print_endline_int ans
 
+  let take_one lst full_lst =
+    List.map
+      ~f:(fun (v, data) ->
+        ((v, data), List.Assoc.remove ~equal:String.equal full_lst v))
+      lst
+
   let part2 (descriptions, your_ticket, nearby_tickets) =
     let is_invalid ticket =
       List.for_all ~f:(fun value -> match_any value descriptions) ticket
     in
     let all_tickets = your_ticket :: nearby_tickets in
     let all_tickets = List.filter ~f:is_invalid all_tickets in
-    let permutations = permute descriptions in
+    let all_tickets = List.transpose_exn all_tickets in
+    let filter_descs col descs =
+      List.filter
+        ~f:(fun desc -> List.for_all ~f:(fun v -> field_match (v, desc)) col)
+        descs
+    in
     let correct_description =
-      List.fold ~init:permutations
-        ~f:(fun perms ticket ->
-          Sequence.filter
-            ~f:(fun desc ->
-              List.for_all ~f:field_match (List.zip_exn ticket desc))
-            perms)
-        all_tickets
-      |> Sequence.hd_exn
+      let rec aux determined tickets descs =
+        match tickets with
+        | [] -> Some (List.rev determined)
+        | col :: rest_cols -> (
+            let possible_descs = filter_descs col descs in
+            if List.is_empty possible_descs then None
+            else
+              match
+                List.filter_map
+                  ~f:(fun (determined_desc, descs) ->
+                    aux (determined_desc :: determined) rest_cols descs)
+                  (take_one possible_descs descs)
+              with
+              | [] -> None
+              | [ans] -> Some ans
+              | _ -> assert false )
+      in
+      Option.value_exn (aux [] all_tickets descriptions)
     in
     let ans =
       List.fold ~init:1
-        ~f:(fun acc ((desc, _, _), value) ->
+        ~f:(fun acc ((desc, _), value) ->
           if String.is_prefix ~prefix:"departure" desc then acc * value
           else acc)
         (List.zip_exn correct_description your_ticket)
