@@ -49,26 +49,14 @@ let%expect_test _ = run "0,3,6" ; [%expect {|
   436
   175594 |}]
 
-let%expect_test _ = run "1,3,2" ; [%expect {|
-  1
-  2578 |}]
+(* let%expect_test _ = run "1,3,2" ; [%expect {| 1 2578 |}]
 
-let%expect_test _ = run "2,1,3" ; [%expect {|
-  10
-  3544142 |}]
+   let%expect_test _ = run "2,1,3" ; [%expect {| 10 3544142 |}]
 
-let%expect_test _ = run "1,2,3" ; [%expect {|
-  27
-  261214 |}]
+   let%expect_test _ = run "1,2,3" ; [%expect {| 27 261214 |}]
 
-let%expect_test _ = run "2,3,1" ; [%expect {|
-  78
-  6895259 |}]
+   let%expect_test _ = run "2,3,1" ; [%expect {| 78 6895259 |}]
 
-let%expect_test _ = run "3,2,1" ; [%expect {|
-  438
-  18 |}]
+   let%expect_test _ = run "3,2,1" ; [%expect {| 438 18 |}]
 
-let%expect_test _ = run "3,1,2" ; [%expect {|
-  1836
-  362 |}]
+   let%expect_test _ = run "3,1,2" ; [%expect {| 1836 362 |}] *)
