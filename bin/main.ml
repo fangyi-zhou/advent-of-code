@@ -34,6 +34,7 @@ let () =
     | "19" -> (module Day19)
     | "20" -> (module Day20)
     | "21" -> (module Day21)
+    | "22" -> (module Day22)
     | _ -> failwith "invalid day"
   in
   Day.run inputs ; In_channel.close file
