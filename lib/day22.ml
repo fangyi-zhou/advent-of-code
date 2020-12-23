@@ -41,9 +41,21 @@ module M = struct
     in
     print_endline_int ans
 
+  let string_of_queues q1 q2 =
+    let buffer = Buffer.create 128 in
+    let append i =
+      Buffer.add_string buffer (Int.to_string i) ;
+      Buffer.add_char buffer ' '
+    in
+    Queue.iter ~f:append q1 ;
+    Buffer.add_char buffer ';' ;
+    Queue.iter ~f:append q2 ;
+    Buffer.contents buffer
+
   let part2 (player1, player2) =
     let player1 = Queue.of_list player1 in
     let player2 = Queue.of_list player2 in
+    let cache = ref (Map.empty (module String)) in
     let rec aux player1 player2 =
       match (Queue.peek player1, Queue.peek player2) with
       | Some e1, Some e2 ->
@@ -53,16 +65,26 @@ module M = struct
             Queue.length player1 >= e1 && Queue.length player2 >= e2
           in
           let player1_wins =
-            if recursive_game then
+            if recursive_game then (
               let new_player1 =
-                List.take (Queue.to_list player1) e1 |> Queue.of_list
+                Array.sub ~pos:0 ~len:e1 (Queue.to_array player1)
+                |> Queue.of_array
               in
               let new_player2 =
-                List.take (Queue.to_list player2) e2 |> Queue.of_list
+                Array.sub ~pos:0 ~len:e2 (Queue.to_array player2)
+                |> Queue.of_array
               in
-              match aux new_player1 new_player2 with
-              | `One, _ -> true
-              | `Two, _ -> false
+              let cache_key = string_of_queues new_player1 new_player2 in
+              match Map.find !cache cache_key with
+              | Some ans -> ans
+              | None ->
+                  let ans =
+                    match aux new_player1 new_player2 with
+                    | `One, _ -> true
+                    | `Two, _ -> false
+                  in
+                  cache := Map.set !cache ~key:cache_key ~data:ans ;
+                  ans )
             else e1 > e2
           in
           if player1_wins then (
