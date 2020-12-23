@@ -56,50 +56,59 @@ module M = struct
     let player1 = Queue.of_list player1 in
     let player2 = Queue.of_list player2 in
     let cache = ref (Map.empty (module String)) in
-    let rec aux player1 player2 =
-      match (Queue.peek player1, Queue.peek player2) with
-      | Some e1, Some e2 ->
-          let _ = Queue.dequeue player1 in
-          let _ = Queue.dequeue player2 in
-          let recursive_game =
-            Queue.length player1 >= e1 && Queue.length player2 >= e2
-          in
-          let player1_wins =
-            if recursive_game then (
-              let new_player1 =
-                Array.sub ~pos:0 ~len:e1 (Queue.to_array player1)
-                |> Queue.of_array
-              in
-              let new_player2 =
-                Array.sub ~pos:0 ~len:e2 (Queue.to_array player2)
-                |> Queue.of_array
-              in
-              let cache_key = string_of_queues new_player1 new_player2 in
-              match Map.find !cache cache_key with
-              | Some ans -> ans
-              | None ->
-                  let ans =
-                    match aux new_player1 new_player2 with
-                    | `One, _ -> true
-                    | `Two, _ -> false
-                  in
-                  cache := Map.set !cache ~key:cache_key ~data:ans ;
-                  ans )
-            else e1 > e2
-          in
-          if player1_wins then (
-            Queue.enqueue player1 e1 ;
-            Queue.enqueue player1 e2 ;
-            aux player1 player2 )
-          else (
-            Queue.enqueue player2 e2 ;
-            Queue.enqueue player2 e1 ;
-            aux player1 player2 )
-      | None, None -> assert false
-      | None, _ -> (`Two, player2)
-      | _, None -> (`One, player1)
+    let rec aux player1 player2 memory =
+      let cache_key = string_of_queues player1 player2 in
+      if Set.mem memory cache_key then (`One, player1)
+      else
+        match (Queue.peek player1, Queue.peek player2) with
+        | Some e1, Some e2 ->
+            let _ = Queue.dequeue player1 in
+            let _ = Queue.dequeue player2 in
+            let recursive_game =
+              Queue.length player1 >= e1 && Queue.length player2 >= e2
+            in
+            let player1_wins =
+              if recursive_game then (
+                let new_player1 =
+                  Array.sub ~pos:0 ~len:e1 (Queue.to_array player1)
+                  |> Queue.of_array
+                in
+                let new_player2 =
+                  Array.sub ~pos:0 ~len:e2 (Queue.to_array player2)
+                  |> Queue.of_array
+                in
+                (* print_endline "SUB GAME" ; *)
+                let cache_key = string_of_queues new_player1 new_player2 in
+                match Map.find !cache cache_key with
+                | Some ans -> ans
+                | None ->
+                    let ans =
+                      match
+                        aux new_player1 new_player2
+                          (Set.empty (module String))
+                      with
+                      | `One, _ -> true
+                      | `Two, _ -> false
+                    in
+                    (* print_endline "END SUB GAME" ; *)
+                    cache := Map.set !cache ~key:cache_key ~data:ans ;
+                    ans )
+              else e1 > e2
+            in
+            let memory = Set.add memory cache_key in
+            if player1_wins then (
+              Queue.enqueue player1 e1 ;
+              Queue.enqueue player1 e2 ;
+              aux player1 player2 memory )
+            else (
+              Queue.enqueue player2 e2 ;
+              Queue.enqueue player2 e1 ;
+              aux player1 player2 memory )
+        | None, None -> assert false
+        | None, _ -> (`Two, player2)
+        | _, None -> (`One, player1)
     in
-    let _, winner_queue = aux player1 player2 in
+    let _, winner_queue = aux player1 player2 (Set.empty (module String)) in
     let ans =
       Queue.foldi ~init:0
         ~f:(fun idx acc elem ->
