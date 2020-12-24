@@ -19,6 +19,13 @@ module M = struct
     | NE -> (1, 1)
     | SW -> (-1, -1)
 
+  let neighbours (x, y) =
+    List.map
+      ~f:(fun dir ->
+        let dx, dy = step dir in
+        (x + dx, y + dy))
+      [E; W; NW; SE; NE; SW]
+
   type trace = dir list
 
   module Dir = struct
@@ -94,7 +101,54 @@ module M = struct
     let ans = Map.length marked in
     print_endline_int ans
 
-  let part2 _ = ()
+  let iter map =
+    let keys =
+      Set.union_list (module NormalisedTrace)
+      @@ List.map
+           ~f:(fun key ->
+             Set.of_list (module NormalisedTrace) (key :: neighbours key))
+           (Map.keys map)
+    in
+    let map =
+      Set.fold
+        ~init:(Map.empty (module NormalisedTrace))
+        ~f:(fun acc key ->
+          let neighbour_black =
+            List.count
+              ~f:(fun key -> Option.value ~default:false (Map.find map key))
+              (neighbours key)
+          in
+          let current_black =
+            Option.value ~default:false (Map.find map key)
+          in
+          let next_value =
+            if current_black then
+              if neighbour_black = 0 || neighbour_black > 2 then false
+              else true
+            else if neighbour_black = 2 then true
+            else false
+          in
+          Map.set acc ~key ~data:next_value)
+        keys
+    in
+    let map = Map.filter ~f:Fn.id map in
+    map
+
+  let part2 traces =
+    let init =
+      List.fold
+        ~init:(Map.empty (module NormalisedTrace))
+        ~f:(fun acc trace ->
+          let trace = normalise_trace trace in
+          Map.update acc trace ~f:(function
+            | Some marked -> not marked
+            | None -> true))
+        traces
+    in
+    let final = Fn.apply_n_times iter ~n:100 init in
+    let marked = Map.filter ~f:Fn.id final in
+    let ans = Map.length marked in
+    print_endline_int ans
 end
 
 include Day.Make (M)
@@ -121,4 +175,6 @@ let example =
    neswnwewnwnwseenwseesewsenwsweewe\n\
    wseweeenwnesenwwwswnew"
 
-let%expect_test _ = run example ; [%expect {| 10 |}]
+let%expect_test _ = run example ; [%expect {|
+  10
+  2208 |}]
