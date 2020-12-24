@@ -18,3 +18,10 @@ module List = struct
     | [] -> assert false
     | hd :: tl -> List.fold ~init:hd ~f tl
 end
+
+let time f =
+  let before = Unix.gettimeofday () in
+  let result = f () in
+  let after = Unix.gettimeofday () in
+  print_endline (Printf.sprintf "%f" (after -. before)) ;
+  result
