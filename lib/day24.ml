@@ -11,6 +11,14 @@ module M = struct
     | NE -> SW
     | SW -> NE
 
+  let step = function
+    | E -> (2, 0)
+    | W -> (-2, 0)
+    | NW -> (-1, 1)
+    | SE -> (1, -1)
+    | NE -> (1, 1)
+    | SW -> (-1, -1)
+
   type trace = dir list
 
   module Dir = struct
@@ -34,11 +42,13 @@ module M = struct
 
   module NormalisedTrace = struct
     module M = struct
-      type t = int Map.M(Dir).t
+      type t = int * int
 
-      let compare = Map.compare_direct compare
+      let compare (v11, v12) (v21, v22) =
+        let cmp1 = Int.compare v11 v21 in
+        if cmp1 <> 0 then cmp1 else Int.compare v12 v22
 
-      let sexp_of_t = Map.sexp_of_m__t (module Dir) Int.sexp_of_t
+      let sexp_of_t (v1, v2) = Sexp.List [Int.sexp_of_t v1; Int.sexp_of_t v2]
     end
 
     include M
@@ -46,17 +56,9 @@ module M = struct
   end
 
   let normalise_trace =
-    List.fold
-      ~init:(Map.empty (module Dir))
-      ~f:(fun acc dir ->
-        let opposite_dir = opposite dir in
-        match Map.find acc opposite_dir with
-        | Some 1 -> Map.remove acc opposite_dir
-        | Some num -> Map.set acc ~key:opposite_dir ~data:(num - 1)
-        | None ->
-            Map.update acc dir ~f:(function
-              | Some num -> num + 1
-              | None -> 1))
+    List.fold ~init:(0, 0) ~f:(fun (x, y) dir ->
+        let dx, dy = step dir in
+        (x + dx, y + dy))
 
   type t = trace list
 
@@ -77,7 +79,7 @@ module M = struct
     let lines = String.split ~on:'\n' inputs in
     List.map ~f:parse_trace lines
 
-  let _part1 traces =
+  let part1 traces =
     let map =
       List.fold
         ~init:(Map.empty (module NormalisedTrace))
@@ -88,12 +90,9 @@ module M = struct
             | None -> true))
         traces
     in
-    print_s (Map.sexp_of_m__t (module NormalisedTrace) Bool.sexp_of_t map) ;
     let marked = Map.filter ~f:Fn.id map in
     let ans = Map.length marked in
     print_endline_int ans
-
-  let part1 _ = ()
 
   let part2 _ = ()
 end
@@ -122,4 +121,4 @@ let example =
    neswnwewnwnwseenwseesewsenwsweewe\n\
    wseweeenwnesenwwwswnew"
 
-let%expect_test _ = run example ; [%expect {||}]
+let%expect_test _ = run example ; [%expect {| 10 |}]
