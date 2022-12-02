@@ -15,6 +15,14 @@ defmodule AdventOfCode.Day02 do
     end
   end
 
+  defp parse_result(opp) do
+    case opp do
+      "X" -> :lose
+      "Y" -> :draw
+      "Z" -> :win
+    end
+  end
+
   defp score_shape(shape) do
     case shape do
       :rock -> 1
@@ -41,21 +49,33 @@ defmodule AdventOfCode.Day02 do
     end
   end
 
-  defp simulate_single(line) do
+  defp find_player(opp, result) do
+    Enum.find([:rock, :paper, :scissors], fn player -> play(opp, player) == result end)
+  end
+
+  defp simulate_part1(line) do
     [opponent, player] = String.split(line, " ")
     opponent = parse_opponent(opponent)
     player = parse_player(player)
     score_result(play(opponent, player)) + score_shape(player)
   end
 
-  defp simulate(lines, accum) do
+  defp simulate_part2(line) do
+    [opponent, result] = String.split(line, " ")
+    opponent = parse_opponent(opponent)
+    result = parse_result(result)
+    player = find_player(opponent, result)
+    score_result(result) + score_shape(player)
+  end
+
+  defp simulate(lines, accum, simulate_single) do
     case lines do
       [] ->
         accum
 
       [line | rest] ->
-        pts = simulate_single(line)
-        simulate(rest, pts + accum)
+        pts = simulate_single.(line)
+        simulate(rest, pts + accum, simulate_single)
     end
   end
 
@@ -63,9 +83,13 @@ defmodule AdventOfCode.Day02 do
     input = String.trim(AdventOfCode.Input.get!(2))
     # input = "A Y\nB X\nC Z"
     lines = String.split(input, "\n")
-    simulate(lines, 0)
+    simulate(lines, 0, &simulate_part1/1)
   end
 
   def part2(_args) do
+    input = String.trim(AdventOfCode.Input.get!(2))
+    # input = "A Y\nB X\nC Z"
+    lines = String.split(input, "\n")
+    simulate(lines, 0, &simulate_part2/1)
   end
 end
