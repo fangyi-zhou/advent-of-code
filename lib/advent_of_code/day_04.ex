@@ -15,13 +15,17 @@ defmodule AdventOfCode.Day04 do
     start1 <= start2 and finish1 >= finish2
   end
 
-  defp score_interval({interval1, interval2}) do
+  defp score_interval_1({interval1, interval2}) do
     if interval_contains?(interval1, interval2) or
-         interval_contains?(interval2, interval1) do
-      1
-    else
-      0
-    end
+         interval_contains?(interval2, interval1),
+       do: 1,
+       else: 0
+  end
+
+  defp score_interval_2({{start1, finish1}, {start2, finish2}}) do
+    start = max(start1, start2)
+    finish = min(finish1, finish2)
+    if start <= finish, do: 1, else: 0
   end
 
   def part1(_args) do
@@ -29,9 +33,14 @@ defmodule AdventOfCode.Day04 do
     input = String.trim(input)
     lines = String.split(input, "\n")
     parsed = Enum.map(lines, &parse/1)
-    Enum.reduce(parsed, 0, fn line, acc -> score_interval(line) + acc end)
+    Enum.reduce(parsed, 0, fn line, acc -> score_interval_1(line) + acc end)
   end
 
   def part2(_args) do
+    input = AdventOfCode.Input.get!(4)
+    input = String.trim(input)
+    lines = String.split(input, "\n")
+    parsed = Enum.map(lines, &parse/1)
+    Enum.reduce(parsed, 0, fn line, acc -> score_interval_2(line) + acc end)
   end
 end
