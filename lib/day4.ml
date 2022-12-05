@@ -102,7 +102,7 @@ module M = struct
       validate_passport ~byr:(num_range 1920 2002) ~iyr:(num_range 2010 2020)
         ~eyr:(num_range 2020 2030)
         ~hgt:(fun s ->
-          num_range_suffix 150 193 "cm" s || num_range_suffix 59 76 "in" s)
+          num_range_suffix 150 193 "cm" s || num_range_suffix 59 76 "in" s )
         ~hcl ~ecl ~pid
         ~cid:(fun _ -> true)
     in

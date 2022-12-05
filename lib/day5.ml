@@ -39,7 +39,7 @@ module M = struct
         List.fold_until ~init:hd
           ~f:(fun last curr ->
             if last + 1 = curr then Continue curr
-            else Stop (print_endline_int (last + 1)))
+            else Stop (print_endline_int (last + 1)) )
           ~finish:(fun _ -> assert false)
           tl
 end

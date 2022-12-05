@@ -12,7 +12,7 @@ module M = struct
       let update acc value key =
         Map.update acc key ~f:(function
           | None -> [value]
-          | Some rest -> value :: rest)
+          | Some rest -> value :: rest )
       in
       let rec process_contents ((acc1, acc2) as acc) outer = function
         | [] | ["no"; "other"; "bags."] -> acc
@@ -46,7 +46,7 @@ module M = struct
             if Set.mem acc next then acc
             else (
               updated := true ;
-              Set.add acc next ))
+              Set.add acc next ) )
           nexts
       in
       let next = Set.fold ~init:curr ~f curr in

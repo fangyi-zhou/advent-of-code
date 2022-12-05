@@ -44,11 +44,11 @@ module M = struct
           let neighbours =
             Map.count
               ~f:(fun edges_other ->
-                not (Set.are_disjoint edges_curr edges_other))
+                not (Set.are_disjoint edges_curr edges_other) )
               edges_map
           in
           neighbours = 3
-          (* Count include the tile itself *))
+          (* Count include the tile itself *) )
         edges_map
     in
     assert (Map.length corners = 4) ;

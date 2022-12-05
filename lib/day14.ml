@@ -36,7 +36,7 @@ module M = struct
               let addr =
                 Int.of_string
                   (String.chop_suffix_exn ~suffix:"]"
-                     (String.chop_prefix_exn ~prefix:"mem[" mem))
+                     (String.chop_prefix_exn ~prefix:"mem[" mem) )
               in
               MemSet (addr, operand) )
       | _ -> assert false

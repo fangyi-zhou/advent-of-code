@@ -33,7 +33,7 @@ module M = struct
         lines
     in
     match parts with
-    | [descriptions; _; [_; your_ticket]; _; (_ :: nearby_tickets)] ->
+    | [descriptions; _; [_; your_ticket]; _; _ :: nearby_tickets] ->
         let descriptions = List.map ~f:parse_description descriptions in
         let your_ticket = parse_int_list your_ticket in
         let nearby_tickets = List.map ~f:parse_int_list nearby_tickets in
@@ -56,8 +56,8 @@ module M = struct
           List.sum
             (module Int)
             ~f:(fun field ->
-              if not (match_any field descriptions) then field else 0)
-            ticket)
+              if not (match_any field descriptions) then field else 0 )
+            ticket )
         nearby_tickets
     in
     print_endline_int ans
@@ -105,7 +105,7 @@ module M = struct
       let sorted =
         List.sort
           ~compare:(fun (a, _) (b, _) ->
-            Int.compare (List.length a) (List.length b))
+            Int.compare (List.length a) (List.length b) )
           zipped
       in
       List.unzip sorted
@@ -125,7 +125,7 @@ module M = struct
                     aux
                       (determined_desc :: determined)
                       rest_cols
-                      (Set.remove descs determined_desc))
+                      (Set.remove descs determined_desc) )
                   (take_one possible_descs descs)
               with
               | [] -> None
@@ -140,7 +140,7 @@ module M = struct
       List.fold ~init:1
         ~f:(fun acc ((desc, _), value) ->
           if String.is_prefix ~prefix:"departure" desc then acc * value
-          else acc)
+          else acc )
         (List.zip_exn correct_description your_ticket)
     in
     print_endline_int ans

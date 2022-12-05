@@ -11,8 +11,10 @@ module M = struct
         let intervals = String.split ~on:',' intervals in
         let intervals =
           List.filter_mapi
-            ~f:(fun idx -> function "x" -> None
-              | interval -> Some (Int.of_string interval, idx))
+            ~f:
+              (fun idx -> function
+                | "x" -> None
+                | interval -> Some (Int.of_string interval, idx) )
             intervals
         in
         (timestamp, intervals)
@@ -30,7 +32,7 @@ module M = struct
             List.find intervals ~f:(fun interval -> curr_time % interval = 0)
           with
           | Some interval -> Stop (interval * (curr_time - timestamp))
-          | None -> Continue ())
+          | None -> Continue () )
         ~finish:(fun _ -> assert false)
         (Sequence.range timestamp lcm)
     in

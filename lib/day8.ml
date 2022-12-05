@@ -52,7 +52,7 @@ module M = struct
                   imem.(idx) <- instr ;
                   Continue (idx + 1)
               | `Terminated acc -> Stop acc )
-          | _ -> assert false)
+          | _ -> assert false )
         ~finish:(fun _ -> assert false)
         imem
     in
