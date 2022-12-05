@@ -52,14 +52,36 @@ defmodule AdventOfCode.Day05 do
     end
   end
 
-  defp perform_instr(queues, {nums, origin, dest}) do
+  defp splitat(n, xs, acc) do
+    case n do
+      0 ->
+        {acc, xs}
+
+      n ->
+        case xs do
+          [hd | tl] -> splitat(n - 1, tl, acc ++ [hd])
+        end
+    end
+  end
+
+  defp perform_instr_1(queues, {nums, origin, dest}) do
     if nums == 0 do
       queues
     else
       {item, queues} = Map.get_and_update(queues, origin, fn [item | q] -> {item, q} end)
       {_, queues} = Map.get_and_update(queues, dest, fn q -> {q, [item | q]} end)
-      perform_instr(queues, {nums - 1, origin, dest})
+      perform_instr_1(queues, {nums - 1, origin, dest})
     end
+  end
+
+  defp perform_instr_2(queues, {nums, origin, dest}) do
+    {items, queues} =
+      Map.get_and_update(queues, origin, fn q ->
+        splitat(nums, q, [])
+      end)
+
+    {_, queues} = Map.get_and_update(queues, dest, fn q -> {q, items ++ q} end)
+    queues
   end
 
   def part1(_args) do
@@ -67,7 +89,9 @@ defmodule AdventOfCode.Day05 do
     input = String.trim(input)
     lines = String.split(input, "\n")
     {queues, instructions} = parse(lines, [])
-    result = Enum.reduce(instructions, queues, fn instr, queue -> perform_instr(queue, instr) end)
+
+    result =
+      Enum.reduce(instructions, queues, fn instr, queue -> perform_instr_1(queue, instr) end)
 
     Enum.reduce(
       Enum.map(result, fn {_, [item | _]} -> item end),
@@ -76,5 +100,17 @@ defmodule AdventOfCode.Day05 do
   end
 
   def part2(_args) do
+    input = AdventOfCode.Input.get!(5)
+    input = String.trim(input)
+    lines = String.split(input, "\n")
+    {queues, instructions} = parse(lines, [])
+
+    result =
+      Enum.reduce(instructions, queues, fn instr, queue -> perform_instr_2(queue, instr) end)
+
+    Enum.reduce(
+      Enum.map(result, fn {_, [item | _]} -> item end),
+      fn x, y -> y <> x end
+    )
   end
 end
