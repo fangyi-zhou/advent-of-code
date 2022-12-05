@@ -7,17 +7,26 @@ open Cohttp_lwt_unix
 
 let session_file = ".session"
 
+let year_file = ".year"
+
 let get_token () =
   let file = In_channel.create session_file in
   let token = In_channel.input_all file in
   In_channel.close file ; String.strip token
 
-let download_input day fn =
-  let year =
+let get_year () =
+  if Caml.Sys.file_exists year_file then (
+    let file = In_channel.create year_file in
+    let year = In_channel.input_all file in
+    In_channel.close file ;
+    Int.of_string (String.strip year) )
+  else
     let time = time () in
     let time = gmtime time in
     time.tm_year + 1900
-  in
+
+let download_input day fn =
+  let year = get_year () in
   let url =
     Printf.sprintf "https://adventofcode.com/%d/day/%s/input" year day
   in
