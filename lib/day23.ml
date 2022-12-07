@@ -1,27 +1,27 @@
 open Imports
 
 module Ring = struct
-  type 'a t = Ring of 'a list * 'a * 'a list
+  type t = int list * int * int list
 
   let shift_right = function
-    | Ring (hd, here, next :: tl) -> Ring (here :: hd, next, tl)
-    | Ring (hd, here, []) -> (
+    | hd, here, next :: tl -> (here :: hd, next, tl)
+    | hd, here, [] -> (
         let hd_rev = List.rev hd in
         match hd_rev with
-        | [] -> Ring ([], here, []) (* Singleton, for completeness *)
-        | next :: tl -> Ring ([here], next, tl) )
+        | [] -> ([], here, []) (* Singleton, for completeness *)
+        | next :: tl -> ([here], next, tl) )
 
   let shift_left = function
-    | Ring (prev :: hd, here, tl) -> Ring (hd, prev, here :: tl)
-    | Ring ([], here, tl) -> (
+    | prev :: hd, here, tl -> (hd, prev, here :: tl)
+    | [], here, tl -> (
         let tl_rev = List.rev tl in
         match tl_rev with
-        | [] -> Ring ([], here, [])
-        | prev :: hd -> Ring (hd, prev, [here]) )
+        | [] -> ([], here, [])
+        | prev :: hd -> (hd, prev, [here]) )
 
-  let of_list = function [] -> assert false | hd :: tl -> Ring ([], hd, tl)
+  let of_list = function [] -> assert false | hd :: tl -> ([], hd, tl)
 
-  let current = function Ring (_, curr, _) -> curr
+  let current = function _, curr, _ -> curr
 
   (* elem must be in the ring *)
   (*
@@ -34,8 +34,8 @@ module Ring = struct
    *   | ring -> focus_left ~compare elem (shift_left ring)
    *)
 
-  let focus ~compare elem = function
-    | Ring (_, curr, _) as ring when compare elem curr = 0 -> ring
+  let focus elem = function
+    | (_, curr, _) as ring when compare elem curr = 0 -> ring
     | ring ->
         let rec aux left right =
           if compare (current left) elem = 0 then left
@@ -46,16 +46,15 @@ module Ring = struct
 
   (* n must be greater than ring size *)
   let rec remove_right n = function
-    | Ring (hd, curr, tl) when List.length tl < n ->
-        remove_right n (Ring ([], curr, tl @ List.rev hd))
-    | Ring (hd, curr, tl) ->
+    | hd, curr, tl when List.length tl < n ->
+        remove_right n ([], curr, tl @ List.rev hd)
+    | hd, curr, tl ->
         let removed, tl = List.split_n tl n in
-        (removed, Ring (hd, curr, tl))
+        (removed, (hd, curr, tl))
 
-  let insert_right elems = function
-    | Ring (hd, curr, tl) -> Ring (hd, curr, elems @ tl)
+  let insert_right elems = function hd, curr, tl -> (hd, curr, elems @ tl)
 
-  let to_list = function Ring (hd, curr, tl) -> [curr] @ tl @ List.rev hd
+  let to_list = function hd, curr, tl -> [curr] @ tl @ List.rev hd
 end
 
 module M = struct
@@ -82,9 +81,9 @@ module M = struct
     match Ring.remove_right 3 ring with
     | [e1; e2; e3], ring ->
         let dest = find_dest (hd - 1) e1 e2 e3 ~limit in
-        let ring = Ring.focus ~compare dest ring in
+        let ring = Ring.focus dest ring in
         let ring = Ring.insert_right [e1; e2; e3] ring in
-        let ring = Ring.focus ~compare hd ring in
+        let ring = Ring.focus hd ring in
         let ring = Ring.shift_right ring in
         ring
     | _ -> assert false
@@ -97,7 +96,7 @@ module M = struct
   let part1 init =
     let init = Ring.of_list init in
     let final = Fn.apply_n_times (move ~limit:9) ~n:100 init in
-    let final = Ring.focus ~compare 1 final in
+    let final = Ring.focus 1 final in
     let final = Ring.to_list final in
     let ans = string_of_list (List.tl_exn final) in
     print_endline ans
@@ -106,7 +105,7 @@ module M = struct
     let init = init @ List.range ~stop:`inclusive 10 1000000 in
     let init = Ring.of_list init in
     let final = Fn.apply_n_times (move ~limit:1000000) ~n:10000000 init in
-    let final = Ring.focus ~compare 1 final in
+    let final = Ring.focus 1 final in
     let two_to_the_right, _ = Ring.remove_right 2 final in
     let ans = List.product two_to_the_right in
     print_endline_int ans
