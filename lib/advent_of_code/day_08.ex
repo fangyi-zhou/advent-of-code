@@ -107,87 +107,42 @@ defmodule AdventOfCode.Day08 do
     end
   end
 
-  defp horizontal_lookups_d(map, x, y, i, j, left, right) do
+  defp scene_score(map, limit, x, y, i, j, dx, dy, acc) do
     cond do
-      i == x ->
-        {left, right}
-
-      j == y ->
-        horizontal_lookups_d(map, x, y, i + 1, 0, left, right)
-
-      j == 0 ->
-        left = Map.put(left, {i, j}, 0)
-        right = Map.put(right, {i, y - j - 1}, 0)
-        horizontal_lookups_d(map, x, y, i, j + 1, left, right)
+      i < 0 or j < 0 or i >= x or j >= y ->
+        acc - 1
 
       true ->
-        dist_l = Map.get(left, {i, j - 1})
-        val_l = if Map.get(map, {i, j}) > Map.get(map, {i, j - 1}), do: dist_l + 1, else: 1
-        left = Map.put(left, {i, j}, val_l)
-        dist_r = Map.get(right, {i, y - j})
+        curr = Map.get(map, {i, j})
 
-        val_r =
-          if Map.get(map, {i, y - j - 1}) > Map.get(map, {i, y - j}), do: dist_r + 1, else: 1
-
-        right = Map.put(right, {i, y - j - 1}, val_r)
-        horizontal_lookups_d(map, x, y, i, j + 1, left, right)
+        if curr < limit do
+          scene_score(map, limit, x, y, i + dx, j + dy, dx, dy, acc + 1)
+        else
+          acc
+        end
     end
   end
 
-  defp vertical_lookups_d(map, x, y, i, j, top, bottom) do
-    cond do
-      j == y ->
-        {top, bottom}
-
-      i == x ->
-        vertical_lookups_d(map, x, y, 0, j + 1, top, bottom)
-
-      i == 0 ->
-        top = Map.put(top, {i, j}, 0)
-        bottom = Map.put(bottom, {x - i - 1, j}, 0)
-        vertical_lookups_d(map, x, y, i + 1, j, top, bottom)
-
-      true ->
-        dist_t = Map.get(top, {i - 1, j})
-        val_t = if Map.get(map, {i, j}) > Map.get(map, {i - 1, j}), do: dist_t + 1, else: 1
-        top = Map.put(top, {i, j}, val_t)
-        dist_b = Map.get(bottom, {x - i, j})
-
-        val_b =
-          if Map.get(map, {x - i - 1, j}) > Map.get(map, {x - i, j}), do: dist_b + 1, else: 1
-
-        bottom = Map.put(bottom, {x - i - 1, j}, val_b)
-        vertical_lookups_d(map, x, y, i + 1, j, top, bottom)
-    end
-  end
-
-  defp find_best(map, distance_lookups, i, j, x, y, acc) do
+  defp find_best(map, i, j, x, y, acc) do
     cond do
       i == x ->
         acc
 
       j == y ->
-        find_best(map, distance_lookups, i + 1, 0, x, y, acc)
+        find_best(map, i + 1, 0, x, y, acc)
 
       i == 0 or j == 0 or i == x - 1 or j == y - 1 ->
-        find_best(map, distance_lookups, i, j + 1, x, y, acc)
+        find_best(map, i, j + 1, x, y, acc)
 
       true ->
-        {left, right, top, bottom} = distance_lookups
-        left = Map.get(left, {i, j})
-        right = Map.get(right, {i, j})
-        top = Map.get(top, {i, j})
-        bottom = Map.get(bottom, {i, j})
-        IO.puts("#{i} #{j} L#{left} R#{right} T#{top} B#{bottom} #{left * right * top * bottom}")
+        curr = Map.get(map, {i, j})
+        left = scene_score(map, curr, x, y, i, j - 1, 0, -1, 1)
+        right = scene_score(map, curr, x, y, i, j + 1, 0, 1, 1)
+        top = scene_score(map, curr, x, y, i - 1, j, -1, 0, 1)
+        bottom = scene_score(map, curr, x, y, i + 1, j, 1, 0, 1)
 
-        find_best(map, distance_lookups, i, j + 1, x, y, max(left * right * top * bottom, acc))
+        find_best(map, i, j + 1, x, y, max(left * right * top * bottom, acc))
     end
-  end
-
-  defp make_distance_lookups(map, x, y) do
-    {left, right} = horizontal_lookups_d(map, x, y, 0, 0, Map.new(), Map.new())
-    {top, bottom} = vertical_lookups_d(map, x, y, 0, 0, Map.new(), Map.new())
-    {left, right, top, bottom}
   end
 
   def part1(_args) do
@@ -204,7 +159,6 @@ defmodule AdventOfCode.Day08 do
     input = String.trim(input)
     lines = String.split(input, "\n")
     {map, x, y} = to_map(lines, 0, 0, Map.new())
-    distance_lookups = make_distance_lookups(map, x, y)
-    find_best(map, distance_lookups, 0, 0, x, y, 0)
+    find_best(map, 0, 0, x, y, 0)
   end
 end
