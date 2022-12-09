@@ -1,34 +1,30 @@
 defmodule AdventOfCode.Day07 do
-  defp ls(lines, dirs, work_dir) do
-    case lines do
-      [] ->
-        {dirs, lines}
+  defp ls([], dirs, _), do: {dirs, []}
 
-      [hd | tl] ->
-        cond do
-          String.starts_with?(hd, "$") ->
-            {dirs, lines}
+  defp ls([hd | tl], dirs, work_dir) do
+    cond do
+      String.starts_with?(hd, "$") ->
+        {dirs, [hd | tl]}
 
-          true ->
-            {:dir, path, subs, dir_size} = Map.get(dirs, work_dir)
-            [info, name] = String.split(hd, " ")
+      true ->
+        {:dir, path, subs, dir_size} = Map.get(dirs, work_dir)
+        [info, name] = String.split(hd, " ")
 
-            case info do
-              "dir" ->
-                new_dir = {:dir, name, Map.new(), :unknown}
-                subs = Map.put(subs, name, {:dir, name})
-                dirs = Map.put(dirs, [name | work_dir], new_dir)
-                curr = {:dir, path, subs, dir_size}
-                dirs = Map.put(dirs, work_dir, curr)
-                ls(tl, dirs, work_dir)
+        case info do
+          "dir" ->
+            new_dir = {:dir, name, Map.new(), :unknown}
+            subs = Map.put(subs, name, {:dir, name})
+            dirs = Map.put(dirs, [name | work_dir], new_dir)
+            curr = {:dir, path, subs, dir_size}
+            dirs = Map.put(dirs, work_dir, curr)
+            ls(tl, dirs, work_dir)
 
-              size ->
-                {size, _} = Integer.parse(size)
-                subs = Map.put(subs, name, {:file, name, size})
-                curr = {:dir, path, subs, dir_size}
-                dirs = Map.put(dirs, work_dir, curr)
-                ls(tl, dirs, work_dir)
-            end
+          size ->
+            {size, _} = Integer.parse(size)
+            subs = Map.put(subs, name, {:file, name, size})
+            curr = {:dir, path, subs, dir_size}
+            dirs = Map.put(dirs, work_dir, curr)
+            ls(tl, dirs, work_dir)
         end
     end
   end
