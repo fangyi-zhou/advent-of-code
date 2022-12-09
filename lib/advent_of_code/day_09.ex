@@ -15,10 +15,15 @@ defmodule AdventOfCode.Day09 do
         {x_tail, y_tail}
 
       x_head != x_tail and y_head != y_tail ->
-        if abs(x_head - x_tail) == 1 do
-          {x_head, div(y_head + y_tail, 2)}
-        else
-          {div(x_head + x_tail, 2), y_head}
+        cond do
+          abs(x_head - x_tail) == 1 and abs(y_head - y_tail) == 2 ->
+            {x_head, div(y_head + y_tail, 2)}
+
+          abs(y_head - y_tail) == 1 and abs(x_head - x_tail) == 2 ->
+            {div(x_head + x_tail, 2), y_head}
+
+          true ->
+            {div(x_head + x_tail, 2), div(y_head + y_tail, 2)}
         end
 
       true ->
@@ -26,23 +31,34 @@ defmodule AdventOfCode.Day09 do
     end
   end
 
-  defp move(visited, head, tail, dir, step) do
-    visited = MapSet.put(visited, tail)
+  defp update_tails(prev, tails) do
+    case tails do
+      [] ->
+        []
 
-    case step do
-      0 ->
-        {visited, head, tail}
-
-      _ ->
-        {dx, dy} = move_step(dir)
-        {x_head, y_head} = head
-        head = {x_head + dx, y_head + dy}
-        tail = update_tail(head, tail)
-        move(visited, head, tail, dir, step - 1)
+      [tail | tails] ->
+        new_tail = update_tail(prev, tail)
+        [new_tail | update_tails(new_tail, tails)]
     end
   end
 
-  defp go(lines, visited, head, tail) do
+  defp move(visited, knots, dir, step) do
+    visited = MapSet.put(visited, List.last(knots))
+
+    case step do
+      0 ->
+        {visited, knots}
+
+      _ ->
+        {dx, dy} = move_step(dir)
+        [{x_head, y_head} | tails] = knots
+        head = {x_head + dx, y_head + dy}
+        tails = update_tails(head, tails)
+        move(visited, [head | tails], dir, step - 1)
+    end
+  end
+
+  defp go(lines, visited, knots) do
     case lines do
       [] ->
         MapSet.size(visited)
@@ -50,25 +66,32 @@ defmodule AdventOfCode.Day09 do
       [line | rest] ->
         [dir, steps] = String.split(line, " ")
         {steps, _} = Integer.parse(steps)
-        {visited, head, tail} = move(visited, head, tail, dir, steps)
-        go(rest, visited, head, tail)
+        {visited, knots} = move(visited, knots, dir, steps)
+        go(rest, visited, knots)
     end
   end
 
   def part1(_args) do
     input = AdventOfCode.Input.get!(9)
     lines = String.split(input, "\n", trim: true)
-    go(lines, MapSet.new(), {0, 0}, {0, 0})
+    go(lines, MapSet.new(), [{0, 0}, {0, 0}])
   end
 
   def part2(_args) do
-#     input = "R 4
-# U 4
-# L 3
-# D 1
-# R 4
-# D 1
-# L 5
-# R 2"
+    input = AdventOfCode.Input.get!(9)
+    lines = String.split(input, "\n", trim: true)
+
+    go(lines, MapSet.new(), [
+      {0, 0},
+      {0, 0},
+      {0, 0},
+      {0, 0},
+      {0, 0},
+      {0, 0},
+      {0, 0},
+      {0, 0},
+      {0, 0},
+      {0, 0}
+    ])
   end
 end
