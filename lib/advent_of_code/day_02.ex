@@ -1,53 +1,29 @@
 defmodule AdventOfCode.Day02 do
-  defp parse_opponent(opp) do
-    case opp do
-      "A" -> :rock
-      "B" -> :paper
-      "C" -> :scissors
-    end
-  end
+  defp parse_opponent("A"), do: :rock
+  defp parse_opponent("B"), do: :paper
+  defp parse_opponent("C"), do: :scissors
 
-  defp parse_player(opp) do
-    case opp do
-      "X" -> :rock
-      "Y" -> :paper
-      "Z" -> :scissors
-    end
-  end
+  defp parse_player("X"), do: :rock
+  defp parse_player("Y"), do: :paper
+  defp parse_player("Z"), do: :scissors
 
-  defp parse_result(opp) do
-    case opp do
-      "X" -> :lose
-      "Y" -> :draw
-      "Z" -> :win
-    end
-  end
+  defp parse_result("X"), do: :lose
+  defp parse_result("Y"), do: :draw
+  defp parse_result("Z"), do: :win
 
-  defp score_shape(shape) do
-    case shape do
-      :rock -> 1
-      :paper -> 2
-      :scissors -> 3
-    end
-  end
+  defp score_shape(:rock), do: 1
+  defp score_shape(:paper), do: 2
+  defp score_shape(:scissors), do: 3
 
-  defp play(opp, player) do
-    case {opp, player} do
-      {:rock, :paper} -> :win
-      {:paper, :scissors} -> :win
-      {:scissors, :rock} -> :win
-      {opp, player} when opp == player -> :draw
-      {_, _} -> :lose
-    end
-  end
+  defp play(:rock, :paper), do: :win
+  defp play(:paper, :scissors), do: :win
+  defp play(:scissors, :rock), do: :win
+  defp play(opp, player) when opp == player, do: :draw
+  defp play(_, _), do: :lose
 
-  defp score_result(result) do
-    case result do
-      :win -> 6
-      :draw -> 3
-      :lose -> 0
-    end
-  end
+  defp score_result(:win), do: 6
+  defp score_result(:draw), do: 3
+  defp score_result(:lose), do: 0
 
   defp find_player(opp, result) do
     Enum.find([:rock, :paper, :scissors], fn player -> play(opp, player) == result end)
@@ -68,15 +44,11 @@ defmodule AdventOfCode.Day02 do
     score_result(result) + score_shape(player)
   end
 
-  defp simulate(lines, accum, simulate_single) do
-    case lines do
-      [] ->
-        accum
+  defp simulate([], accum, _), do: accum
 
-      [line | rest] ->
-        pts = simulate_single.(line)
-        simulate(rest, pts + accum, simulate_single)
-    end
+  defp simulate([line | rest], accum, simulate_single) do
+    pts = simulate_single.(line)
+    simulate(rest, pts + accum, simulate_single)
   end
 
   def part1(_args) do

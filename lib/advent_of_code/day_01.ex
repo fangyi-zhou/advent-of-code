@@ -1,29 +1,27 @@
 defmodule AdventOfCode.Day01 do
-  defp iterate(items, curr, accum) do
-    case items do
-      [] ->
-        accum
+  defp iterate([], _, accum) do
+    accum
+  end
 
-      ["" | rest] ->
-        [_ | new_accum] = Enum.sort([curr | accum], :asc)
-        iterate(rest, 0, new_accum)
+  defp iterate(["" | rest], curr, accum) do
+    [_ | new_accum] = Enum.sort([curr | accum], :asc)
+    iterate(rest, 0, new_accum)
+  end
 
-      [num_s | rest] ->
-        {num, _} = Integer.parse(num_s)
-        iterate(rest, curr + num, accum)
-    end
+  defp iterate([num_s | rest], curr, accum) do
+    {num, _} = Integer.parse(num_s)
+    iterate(rest, curr + num, accum)
   end
 
   def part1(_args) do
     input = AdventOfCode.Input.get!(1)
     lines = String.split(input, "\n")
-    [ret] = iterate(lines, 0, [0])
-    ret
+    Enum.sum(iterate(lines, 0, [0]))
   end
 
   def part2(_args) do
     input = AdventOfCode.Input.get!(1)
     lines = String.split(input, "\n")
-    Enum.reduce(iterate(lines, 0, [0, 0, 0]), 0, fn x, y -> x + y end)
+    Enum.sum(iterate(lines, 0, [0, 0, 0]))
   end
 end
