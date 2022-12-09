@@ -1,29 +1,22 @@
 defmodule AdventOfCode.Day05 do
-  defp update_queue(queues, splitted, curr) do
-    case splitted do
-      ["", "", "", "" | rest] ->
-        update_queue(queues, rest, curr + 1)
-
-      [stuff | rest] ->
-        item = String.at(stuff, 1)
-        {_, queues} = Map.get_and_update(queues, curr, fn q -> {q, [item | q]} end)
-        update_queue(queues, rest, curr + 1)
-
-      [] ->
-        queues
-    end
+  defp update_queue(queues, ["", "", "", "" | rest], curr) do
+    update_queue(queues, rest, curr + 1)
   end
 
-  defp update_queues(queues, lines, buckets) do
-    case lines do
-      [] ->
-        queues
+  defp update_queue(queues, [stuff | rest], curr) do
+    item = String.at(stuff, 1)
+    {_, queues} = Map.get_and_update(queues, curr, fn q -> {q, [item | q]} end)
+    update_queue(queues, rest, curr + 1)
+  end
 
-      [line | rest] ->
-        splitted = String.split(line, " ")
-        queues = update_queue(queues, splitted, 1)
-        update_queues(queues, rest, buckets)
-    end
+  defp update_queue(queues, [], _), do: queues
+
+  defp update_queues(queues, [], _), do: queues
+
+  defp update_queues(queues, [line | rest], buckets) do
+    splitted = String.split(line, " ")
+    queues = update_queue(queues, splitted, 1)
+    update_queues(queues, rest, buckets)
   end
 
   defp parse_queues([hd | rest]) do
@@ -42,42 +35,26 @@ defmodule AdventOfCode.Day05 do
     end)
   end
 
-  defp parse(lines, acc) do
-    case lines do
-      ["" | rest] ->
-        {parse_queues(acc), parse_instructions(rest)}
-
-      [hd | rest] ->
-        parse(rest, [hd | acc])
-    end
+  defp parse(["" | rest], acc) do
+    {parse_queues(acc), parse_instructions(rest)}
   end
 
-  defp splitat(n, xs, acc) do
-    case n do
-      0 ->
-        {acc, xs}
-
-      n ->
-        case xs do
-          [hd | tl] -> splitat(n - 1, tl, acc ++ [hd])
-        end
-    end
+  defp parse([hd | rest], acc) do
+    parse(rest, [hd | acc])
   end
+
+  defp perform_instr_1(queues, {0, _, _}), do: queues
 
   defp perform_instr_1(queues, {nums, origin, dest}) do
-    if nums == 0 do
-      queues
-    else
-      {item, queues} = Map.get_and_update(queues, origin, fn [item | q] -> {item, q} end)
-      {_, queues} = Map.get_and_update(queues, dest, fn q -> {q, [item | q]} end)
-      perform_instr_1(queues, {nums - 1, origin, dest})
-    end
+    {item, queues} = Map.get_and_update(queues, origin, fn [item | q] -> {item, q} end)
+    {_, queues} = Map.get_and_update(queues, dest, fn q -> {q, [item | q]} end)
+    perform_instr_1(queues, {nums - 1, origin, dest})
   end
 
   defp perform_instr_2(queues, {nums, origin, dest}) do
     {items, queues} =
       Map.get_and_update(queues, origin, fn q ->
-        splitat(nums, q, [])
+        Enum.split(q, nums)
       end)
 
     {_, queues} = Map.get_and_update(queues, dest, fn q -> {q, items ++ q} end)
