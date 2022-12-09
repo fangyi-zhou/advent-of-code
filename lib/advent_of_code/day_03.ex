@@ -32,29 +32,11 @@ defmodule AdventOfCode.Day03 do
     Enum.reduce(prios, 0, fn p, acc -> acc + score_prio(p) end)
   end
 
-  defp group_aux(size, xs, it, acc) do
-    if it == size do
-      [acc | group_aux(size, xs, 0, [])]
-    else
-      case xs do
-        [] ->
-          []
-
-        [x | xs] ->
-          group_aux(size, xs, it + 1, [x | acc])
-      end
-    end
-  end
-
-  defp group(xs, size) do
-    group_aux(size, xs, 0, [])
-  end
-
   def part2(_args) do
     input = AdventOfCode.Input.get!(3)
     input = String.trim(input)
     lines = String.split(input, "\n")
-    groups = group(lines, 3)
+    groups = Enum.chunk_every(lines, 3)
     Enum.reduce(groups, 0, fn g, acc -> acc + score_prio(find_common(g)) end)
   end
 end
