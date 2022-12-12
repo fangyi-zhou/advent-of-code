@@ -88,7 +88,7 @@ Monkey 3:
     monkeys
   end
 
-  defp process_items(monkeys, curr, [], _, _, _, _) do
+  defp process_items(monkeys, curr, [], _, _, _, _, _) do
     {:ok, monkeys} =
       Map.get_and_update(monkeys, curr, fn
         {_, operation, divisible, monkey_true, monkey_false} ->
@@ -105,9 +105,10 @@ Monkey 3:
          operation,
          divisible,
          monkey_true,
-         monkey_false
+         monkey_false,
+         worry_fn
        ) do
-    worry = div(operation.(item), 3)
+    worry = worry_fn.(operation.(item))
 
     monkeys =
       throw_item(
@@ -116,28 +117,40 @@ Monkey 3:
         worry
       )
 
-    process_items(monkeys, curr, items, operation, divisible, monkey_true, monkey_false)
+    process_items(monkeys, curr, items, operation, divisible, monkey_true, monkey_false, worry_fn)
   end
 
-  defp single_round(monkeys, counts, curr, total) when curr == total do
+  defp single_round(monkeys, counts, curr, total, _) when curr == total do
     {monkeys, counts}
   end
 
-  defp single_round(monkeys, counts, curr, total) do
+  defp single_round(monkeys, counts, curr, total, worry_fn) do
     {items, operation, divisible, monkey_true, monkey_false} = Map.get(monkeys, curr)
     counts = Map.update(counts, curr, length(items), fn old -> old + length(items) end)
-    monkeys = process_items(monkeys, curr, items, operation, divisible, monkey_true, monkey_false)
-    single_round(monkeys, counts, curr + 1, total)
+
+    monkeys =
+      process_items(
+        monkeys,
+        curr,
+        items,
+        operation,
+        divisible,
+        monkey_true,
+        monkey_false,
+        worry_fn
+      )
+
+    single_round(monkeys, counts, curr + 1, total, worry_fn)
   end
 
-  defp go(_, 0, counts, _) do
+  defp go(_, 0, counts, _, _) do
     [x, y | _] = Enum.sort(Map.values(counts), :desc)
     x * y
   end
 
-  defp go(monkeys, rounds, counts, total) do
-    {monkeys, counts} = single_round(monkeys, counts, 0, total)
-    go(monkeys, rounds - 1, counts, total)
+  defp go(monkeys, rounds, counts, total, worry_fn) do
+    {monkeys, counts} = single_round(monkeys, counts, 0, total, worry_fn)
+    go(monkeys, rounds - 1, counts, total, worry_fn)
   end
 
   def part1(_args) do
@@ -145,9 +158,16 @@ Monkey 3:
     lines = String.split(input, "\n", trim: true)
     monkeys = Map.new(Enum.map(Enum.chunk_every(lines, 6), &parse/1))
     monkeys_count = map_size(monkeys)
-    go(monkeys, 20, Map.new(), monkeys_count)
+    go(monkeys, 20, Map.new(), monkeys_count, fn worry -> div(worry, 3) end)
   end
 
   def part2(_args) do
+    input = AdventOfCode.Input.get!(11)
+    lines = String.split(input, "\n", trim: true)
+    monkeys = Map.new(Enum.map(Enum.chunk_every(lines, 6), &parse/1))
+    divisibles = Enum.map(Map.values(monkeys), fn {_, _, divisible, _, _} -> divisible end)
+    modular = Enum.reduce(divisibles, 1, fn x, y -> x * y end)
+    monkeys_count = map_size(monkeys)
+    go(monkeys, 10000, Map.new(), monkeys_count, fn worry -> rem(worry, modular) end)
   end
 end
