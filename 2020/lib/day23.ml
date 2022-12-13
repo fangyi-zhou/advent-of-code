@@ -163,19 +163,15 @@ module M = struct
     | curr when curr <> e1 && curr <> e2 && curr <> e3 -> curr
     | curr -> find_dest (curr - 1) e1 e2 e3 ~limit
 
-
   let count = ref 0
 
-  let incr_count () =
-    count := !count + 1
+  let incr_count () = count := !count + 1
 
-  let reset_count () = 
-    count := 0
+  let reset_count () = count := 0
 
   let move ~limit ring =
-    if !count % 100000 = 0 then
-      print_endline_int !count ;
     incr_count () ;
+    if !count % 100000 = 0 then print_endline_int !count ;
     let hd = Ring_Map.current ring in
     match Ring_Map.remove_right 3 ring with
     | [e1; e2; e3], ring ->
@@ -193,7 +189,7 @@ module M = struct
     output
 
   let part1 init =
-    reset_count ();
+    reset_count () ;
     let init = Ring_Map.of_list init in
     let final = Fn.apply_n_times (move ~limit:9) ~n:100 init in
     let final = Ring_Map.focus 1 final in
@@ -202,7 +198,7 @@ module M = struct
     print_endline ans
 
   let part2 init =
-    reset_count ();
+    reset_count () ;
     let init = init @ List.range ~stop:`inclusive 10 1000000 in
     let init = Ring_Map.of_list init in
     let final = Fn.apply_n_times (move ~limit:1000000) ~n:10000000 init in
@@ -216,4 +212,6 @@ include Day.Make (M)
 
 let example = "389125467"
 
-let%expect_test _ = run example ; [%expect {| 67384529 |}]
+let%expect_test _ =
+  run ~only_part1:true example ;
+  [%expect {| 67384529 |}]
