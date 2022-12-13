@@ -58,7 +58,7 @@ module M = struct
         List.fold ~init:[str]
           ~f:(fun acc rule ->
             List.concat
-            @@ List.filter_map ~f:(fun s -> match_rule refs s rule) acc)
+            @@ List.filter_map ~f:(fun s -> match_rule refs s rule) acc )
           rules
       with
       | [] -> None
@@ -71,7 +71,7 @@ module M = struct
           let str = String.to_list str in
           match match_rule refs str (Ref 0) with
           | Some [[]] -> true
-          | _ -> false)
+          | _ -> false )
         entries
     in
     print_endline_int ans
@@ -82,8 +82,7 @@ module M = struct
     in
     let refs =
       Map.set refs ~key:11
-        ~data:
-          (Alt [Concat [Ref 42; Ref 31]; Concat [Ref 42; Ref 11; Ref 31]])
+        ~data:(Alt [Concat [Ref 42; Ref 31]; Concat [Ref 42; Ref 11; Ref 31]])
     in
     let ans =
       List.count
@@ -91,7 +90,7 @@ module M = struct
           let str = String.to_list str in
           match match_rule refs str (Ref 0) with
           | Some endings -> List.exists ~f:List.is_empty endings
-          | _ -> false)
+          | _ -> false )
         entries
     in
     print_endline_int ans

@@ -32,8 +32,8 @@ module M = struct
             ~f:(fun acc allergen ->
               Map.update acc allergen ~f:(function
                 | None -> ingredients
-                | Some existing -> Set.inter existing ingredients))
-            allergens)
+                | Some existing -> Set.inter existing ingredients ) )
+            allergens )
         entries
     in
     let iter allergies =
@@ -47,7 +47,7 @@ module M = struct
         Map.map ~f:(fun is -> Set.diff is singleton_allergens) others
       in
       Map.merge_skewed singletons others ~combine:(fun ~key:_ ->
-          assert false)
+          assert false )
     in
     let rec fix iter acc =
       let next = iter acc in
@@ -88,7 +88,7 @@ module M = struct
       String.concat ~sep:","
         (List.map
            ~f:(fun (_, a) -> Set.choose_exn a)
-           (Map.to_alist allergies))
+           (Map.to_alist allergies) )
     in
     print_endline ans
 end

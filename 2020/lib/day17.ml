@@ -74,7 +74,7 @@ module M = struct
         ~init:(Map.empty (module Vec2))
         ~f:(fun y acc ->
           String.foldi ~init:acc ~f:(fun x acc ch ->
-              Map.add_exn acc ~key:(x, y) ~data:(Char.equal ch '#')))
+              Map.add_exn acc ~key:(x, y) ~data:(Char.equal ch '#') ) )
         lines
     in
     (map, (0, 0), (dimx, dimy))
@@ -84,7 +84,7 @@ module M = struct
       Map.fold
         ~init:(Map.empty (module Vec3))
         ~f:(fun ~key ~data acc ->
-          Map.add_exn ~key:(Vec3.of_vec2 key) ~data acc)
+          Map.add_exn ~key:(Vec3.of_vec2 key) ~data acc )
         map
     in
     let small = Vec3.of_vec2 small in
@@ -96,7 +96,7 @@ module M = struct
       Map.fold
         ~init:(Map.empty (module Vec4))
         ~f:(fun ~key ~data acc ->
-          Map.add_exn ~key:(Vec4.of_vec2 key) ~data acc)
+          Map.add_exn ~key:(Vec4.of_vec2 key) ~data acc )
         map
     in
     let small = Vec4.of_vec2 small in

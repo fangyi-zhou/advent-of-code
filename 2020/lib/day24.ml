@@ -23,7 +23,7 @@ module M = struct
     List.map
       ~f:(fun dir ->
         let dx, dy = step dir in
-        (x + dx, y + dy))
+        (x + dx, y + dy) )
       [E; W; NW; SE; NE; SW]
 
   type trace = dir list
@@ -65,7 +65,7 @@ module M = struct
   let normalise_trace =
     List.fold ~init:(0, 0) ~f:(fun (x, y) dir ->
         let dx, dy = step dir in
-        (x + dx, y + dy))
+        (x + dx, y + dy) )
 
   type t = trace list
 
@@ -94,7 +94,7 @@ module M = struct
           let trace = normalise_trace trace in
           Map.update acc trace ~f:(function
             | Some marked -> not marked
-            | None -> true))
+            | None -> true ) )
         traces
     in
     let marked = Map.filter ~f:Fn.id map in
@@ -106,7 +106,7 @@ module M = struct
       Set.union_list (module NormalisedTrace)
       @@ List.map
            ~f:(fun key ->
-             Set.of_list (module NormalisedTrace) (key :: neighbours key))
+             Set.of_list (module NormalisedTrace) (key :: neighbours key) )
            (Map.keys map)
     in
     let map =
@@ -128,7 +128,7 @@ module M = struct
             else if neighbour_black = 2 then true
             else false
           in
-          Map.set acc ~key ~data:next_value)
+          Map.set acc ~key ~data:next_value )
         keys
     in
     let map = Map.filter ~f:Fn.id map in
@@ -142,7 +142,7 @@ module M = struct
           let trace = normalise_trace trace in
           Map.update acc trace ~f:(function
             | Some marked -> not marked
-            | None -> true))
+            | None -> true ) )
         traces
     in
     let final = Fn.apply_n_times iter ~n:100 init in

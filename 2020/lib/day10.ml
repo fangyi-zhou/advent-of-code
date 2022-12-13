@@ -15,7 +15,7 @@ module M = struct
         ~f:(fun (diff1, diff3, last) curr ->
           if curr = last + 1 then (diff1 + 1, diff3, curr)
           else if curr = last + 3 then (diff1, diff3 + 1, curr)
-          else (diff1, diff3, curr))
+          else (diff1, diff3, curr) )
         sorted
     in
     let ans = diff1 * diff3 in

@@ -36,7 +36,7 @@ module M = struct
     let ans =
       Queue.foldi ~init:0
         ~f:(fun idx acc elem ->
-          acc + (elem * (Queue.length winner_queue - idx)))
+          acc + (elem * (Queue.length winner_queue - idx)) )
         winner_queue
     in
     print_endline_int ans
@@ -112,7 +112,7 @@ module M = struct
     let ans =
       Queue.foldi ~init:0
         ~f:(fun idx acc elem ->
-          acc + (elem * (Queue.length winner_queue - idx)))
+          acc + (elem * (Queue.length winner_queue - idx)) )
         winner_queue
     in
     print_endline_int ans

@@ -24,7 +24,7 @@ module M = struct
                 Queue.enqueue queue num ;
                 ignore (Queue.dequeue_exn queue) ;
                 Continue ()
-            | None -> Stop num)
+            | None -> Stop num )
         ~finish:(fun _ -> assert false)
         nums
     in
@@ -54,7 +54,7 @@ module M = struct
             let first = Queue.dequeue_exn queue in
             aux (acc - first) elem
         in
-        aux acc elem)
+        aux acc elem )
       ~finish:(fun _ -> assert false)
       nums
 

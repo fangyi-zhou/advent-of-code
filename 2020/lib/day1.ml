@@ -13,7 +13,7 @@ module M = struct
     Set.fold_until ~init:()
       ~f:(fun () num ->
         if Set.mem nums (sum - num) then Stop (Some (num * (sum - num)))
-        else Continue ())
+        else Continue () )
       ~finish:(fun () -> None)
       nums
 
@@ -27,7 +27,7 @@ module M = struct
         ~f:(fun remaining num ->
           match sum2 (2020 - num) remaining with
           | Some answer -> Stop (answer * num)
-          | None -> Continue (Set.remove nums num))
+          | None -> Continue (Set.remove nums num) )
         ~finish:(fun _ -> assert false)
         nums
     in

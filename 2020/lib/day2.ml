@@ -19,7 +19,7 @@ module M = struct
       List.count
         ~f:(fun (mini, maxi, letter, pwd) ->
           let count = String.count ~f:(Char.( = ) letter) pwd in
-          count >= mini && count <= maxi)
+          count >= mini && count <= maxi )
         entries
     in
     print_endline_int ans
@@ -31,7 +31,7 @@ module M = struct
           not
           @@ Bool.equal
                (Char.equal pwd.[pos1 - 1] letter)
-               (Char.equal pwd.[pos2 - 1] letter))
+               (Char.equal pwd.[pos2 - 1] letter) )
         entries
     in
     print_endline_int ans
