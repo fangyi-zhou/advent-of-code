@@ -71,7 +71,7 @@ defmodule AdventOfCode.Day13 do
     find(tl, tl_to_find, idx + 1, acc * idx)
   end
 
-  defp find([hd | tl], to_find, idx, acc) do
+  defp find([_ | tl], to_find, idx, acc) do
     find(tl, to_find, idx + 1, acc)
   end
 
