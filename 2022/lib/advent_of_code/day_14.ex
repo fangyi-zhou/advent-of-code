@@ -67,6 +67,9 @@ defmodule AdventOfCode.Day14 do
                     map = Map.put(map, {x, y}, :sand)
                     # IO.puts "Dropped at #{x}, #{y}"
                     drop_sand(map, max_y, start, start, acc + 1)
+
+                  _ ->
+                    acc
                 end
             end
         end
@@ -80,6 +83,17 @@ defmodule AdventOfCode.Day14 do
     drop_sand(map, max_y, {500, 0}, {500, 0}, 0)
   end
 
+  defp add_floor(map, range_x, y) do
+    Enum.reduce(range_x, map, fn x, map ->
+      Map.put(map, {x, y}, :floor)
+    end)
+  end
+
   def part2(_args) do
+    input = AdventOfCode.Input.get!(14)
+    lines = String.split(input, "\n", trim: true)
+    {map, max_y} = parse(lines, Map.new(), 0)
+    map = add_floor(map, 0..1000, max_y + 2)
+    drop_sand(map, max_y + 2, {500, 0}, {500, 0}, 0)
   end
 end
