@@ -42,13 +42,13 @@ fn overlay_ch(ch1: char, ch2: char) -> char {
     }
 }
 
-fn overlay(layer1: &str, layer2: &str) -> Box<String> {
+fn overlay(layer1: &str, layer2: &str) -> String {
     let s = layer1
         .chars()
         .zip(layer2.chars())
         .map(|(x, y)| overlay_ch(x, y))
         .collect();
-    Box::new(s)
+    s
 }
 
 #[aoc(day8, part1)]
@@ -74,7 +74,7 @@ fn render_char(ch: char) -> char {
 pub fn solve_part2(input: &[String]) -> i32 {
     let mut iter = input.iter();
     let fst = iter.next().unwrap();
-    let final_layer = iter.fold(Box::new((*fst).clone()), |acc, layer| overlay(&acc, layer));
+    let final_layer = iter.fold((fst).clone(), |acc, layer| overlay(&acc, layer));
     for i in 0..HEIGHT {
         let output: String = final_layer[i * WIDTH..(i + 1) * WIDTH]
             .to_string()

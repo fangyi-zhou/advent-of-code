@@ -1,14 +1,6 @@
 use std::collections::HashMap;
 use std::collections::VecDeque;
 
-fn b2i(input: bool) -> i64 {
-    if input {
-        1
-    } else {
-        0
-    }
-}
-
 pub struct IntMachine {
     pub memory: HashMap<usize, i64>,
     pub inputs: VecDeque<i64>,
@@ -102,8 +94,8 @@ impl IntMachine {
                     let result = match opcode {
                         1 => operand1 + operand2,
                         2 => operand1 * operand2,
-                        7 => b2i(operand1 < operand2),
-                        8 => b2i(operand1 == operand2),
+                        7 => i64::from(operand1 < operand2),
+                        8 => i64::from(operand1 == operand2),
                         _ => unreachable!(),
                     };
                     self.memory.insert(dest, result);

@@ -1,8 +1,8 @@
 type Vec3 = (i32, i32, i32);
 
 fn parse_vec3(input: &str) -> Vec3 {
-    let input = input.strip_prefix("<").unwrap();
-    let input = input.strip_suffix(">").unwrap();
+    let input = input.strip_prefix('<').unwrap();
+    let input = input.strip_suffix('>').unwrap();
     let mut splitted = input.split(", ");
     let x = splitted
         .next()

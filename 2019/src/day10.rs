@@ -50,16 +50,16 @@ fn max_elem(input: &[Point]) -> (&Point, HashMap<Point, Vec<&Point>>, i32) {
     input
         .iter()
         .fold((&(0, 0), HashMap::new(), 0), |(pt, pts, maxi), point| {
-            let mut visible_points = HashMap::new();
+            let mut visible_points: HashMap<(i32, i32), Vec<_>> = HashMap::new();
             for other_point in input.iter() {
                 visible_points
-                    .entry(diff(&point, &other_point))
-                    .or_insert(Vec::new())
+                    .entry(diff(point, other_point))
+                    .or_default()
                     .push(other_point);
             }
             let new_len = visible_points.keys().len() as i32;
             if new_len > maxi {
-                (&point, visible_points, new_len)
+                (point, visible_points, new_len)
             } else {
                 (pt, pts, maxi)
             }

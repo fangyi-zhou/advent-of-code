@@ -172,6 +172,6 @@ pub fn solve_part2(input: &[Vec<Waypoint>]) -> i32 {
     trace1
         .intersection(&trace2)
         .fold(i32::max_value(), |mini, pt| {
-            i32::min(mini, steps1.get(&pt).unwrap() + steps2.get(&pt).unwrap())
+            i32::min(mini, steps1.get(pt).unwrap() + steps2.get(pt).unwrap())
         })
 }
