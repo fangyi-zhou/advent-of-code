@@ -43,15 +43,15 @@ Sensor at x=20, y=1: closest beacon is at x=15, y=3"
     {sensor, beacon, man_dist(sensor, beacon)}
   end
 
+  defp man_dist({x1, y1}, {x2, y2}) do
+    abs(x1 - x2) + abs(y1 - y2)
+  end
+
   # defp add_pair({sensor, beacon}, map) do
   #   map = Map.put(map, sensor, :sensor)
   #   map = Map.put(map, beacon, :beacon)
   #   map
   # end
-
-  defp man_dist({x1, y1}, {x2, y2}) do
-    abs(x1 - x2) + abs(y1 - y2)
-  end
 
   # defp actually_fill(map, _, [], _), do: map
 
@@ -90,20 +90,19 @@ Sensor at x=20, y=1: closest beacon is at x=15, y=3"
   #   actually_fill(map, MapSet.new(), [{sensor, 0}], dist)
   # end
 
+  defp must_be_empty?(sensors, beacons, curr) do
+    not Map.has_key?(sensors, curr) and
+      not MapSet.member?(beacons, curr) and
+      Enum.any?(sensors, fn {sensor, min_d} ->
+        min_d >= man_dist(sensor, curr)
+      end)
+  end
+
   defp go(_, _, _, x, max_x, acc) when x > max_x, do: acc
 
   defp go(sensors, beacons, y, x, max_x, acc) do
     cond do
-      Map.has_key?(sensors, {x, y}) ->
-        go(sensors, beacons, y, x + 1, max_x, acc)
-
-      MapSet.member?(beacons, {x, y}) ->
-        go(sensors, beacons, y, x + 1, max_x, acc)
-
-      Enum.any?(sensors, fn {sensor, min_d} ->
-        d = man_dist(sensor, {x, y})
-        min_d >= d
-      end) ->
+      must_be_empty?(sensors, beacons, {x, y}) ->
         go(sensors, beacons, y, x + 1, max_x, acc + 1)
 
       true ->
@@ -132,6 +131,49 @@ Sensor at x=20, y=1: closest beacon is at x=15, y=3"
     go(sensors, beacons, 2_000_000, min_x - max_man_dist - 1, max_x + max_man_dist + 1, 0)
   end
 
+  defp put_if_in_range(acc, maxi, {x, y}) do
+    if x >= 0 and x <= maxi and y >= 0 and y <= maxi, do: MapSet.put(acc, {x, y}), else: acc
+  end
+
+  defp gen_dist({x, y}, dist, maxi, acc) do
+    Enum.reduce(0..dist, acc, fn dx, acc ->
+      dy = dist - dx
+      acc = put_if_in_range(acc, maxi, {x + dx, y + dy})
+      acc = put_if_in_range(acc, maxi, {x - dx, y + dy})
+      acc = put_if_in_range(acc, maxi, {x + dx, y - dy})
+      acc = put_if_in_range(acc, maxi, {x - dx, y - dy})
+      acc
+    end)
+  end
+
+  defp is_target?(sensors, beacons, {x, y}) do
+    curr = {x, y}
+
+    not Map.has_key?(sensors, curr) and
+      not MapSet.member?(beacons, curr) and
+      not must_be_empty?(sensors, beacons, curr) and
+      must_be_empty?(sensors, beacons, {x - 1, y}) and
+      must_be_empty?(sensors, beacons, {x + 1, y}) and
+      must_be_empty?(sensors, beacons, {x, y + 1}) and
+      must_be_empty?(sensors, beacons, {x, y - 1})
+  end
+
   def part2(_args) do
+    input = AdventOfCode.Input.get!(15)
+    # input = test()
+    lines = String.split(input, "\n", trim: true)
+    pairs = Enum.map(lines, &parse_line/1)
+    sensors = Map.new(Enum.map(pairs, fn {s, _, d} -> {s, d} end))
+    beacons = MapSet.new(Enum.map(pairs, fn {_, b, _} -> b end))
+    maxi = 4_000_000
+
+    search_space =
+      Enum.reduce(sensors, MapSet.new(), fn {sensor, d}, acc ->
+        gen_dist(sensor, d + 1, maxi, acc)
+      end)
+
+    {x, y} = Enum.find(search_space, fn curr -> is_target?(sensors, beacons, curr) end)
+
+    x * 4_000_000 + y
   end
 end
