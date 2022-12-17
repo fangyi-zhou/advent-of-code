@@ -92,6 +92,76 @@ Valve JJ has flow rate=21; tunnel leads to valve II"
     go(flows, connections, valves_to_open, "AA", 30, 0)
   end
 
+  defp go_with_elephant(_, _, valves_to_open, _, _, acc) when map_size(valves_to_open) == 0,
+    do: acc
+
+  defp go_with_elephant(_, _, _, _, {time_me, time_elephant}, acc)
+       when time_me <= 0 and time_elephant <= 0,
+       do: acc
+
+  defp go_with_elephant(
+         flows,
+         connections,
+         valves_to_open,
+         {curr_me, curr_elephant},
+         {time_me, time_elephant},
+         acc
+       )
+       when time_me >= time_elephant do
+    # I move
+    Enum.reduce(valves_to_open, 0, fn {candidate, flow}, prev_best ->
+      dist = find_dist(connections, curr_me, candidate)
+      pressure = max(0, (time_me - dist - 1) * flow)
+      valves_to_open = Map.delete(valves_to_open, candidate)
+
+      max(
+        prev_best,
+        go_with_elephant(
+          flows,
+          connections,
+          valves_to_open,
+          {candidate, curr_elephant},
+          {time_me - dist - 1, time_elephant},
+          acc + pressure
+        )
+      )
+    end)
+  end
+
+  defp go_with_elephant(
+         flows,
+         connections,
+         valves_to_open,
+         {curr_me, curr_elephant},
+         {time_me, time_elephant},
+         acc
+       ) do
+    # Elephant moves
+    Enum.reduce(valves_to_open, 0, fn {candidate, flow}, prev_best ->
+      dist = find_dist(connections, curr_elephant, candidate)
+      pressure = max(0, (time_elephant - dist - 1) * flow)
+      valves_to_open = Map.delete(valves_to_open, candidate)
+
+      max(
+        prev_best,
+        go_with_elephant(
+          flows,
+          connections,
+          valves_to_open,
+          {curr_me, candidate},
+          {time_me, time_elephant - dist - 1},
+          acc + pressure
+        )
+      )
+    end)
+  end
+
   def part2(_args) do
+    # input = test
+    input = AdventOfCode.Input.get!(16)
+    lines = String.split(input, "\n", trim: true)
+    {flows, connections} = Enum.reduce(lines, {Map.new(), Map.new()}, &parse_line/2)
+    valves_to_open = Map.filter(flows, fn {_, flow} -> flow > 0 end)
+    go_with_elephant(flows, connections, valves_to_open, {"AA", "AA"}, {26, 26}, 0)
   end
 end
