@@ -29,6 +29,6 @@ if __name__ == "__main__":
             input_data = f.read().strip()
     parsed = solution.parse(input_data)
     if hasattr(solution, "part1"):
-       print(solution.part1(parsed))
+        print(solution.part1(parsed))
     if hasattr(solution, "part2"):
         print(solution.part2(parsed))
