@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from functools import reduce
 from typing import Dict, List, Tuple
 
 
@@ -39,3 +40,19 @@ def part1(games: List[Game]) -> int:
         )
 
     return sum(map(lambda game: game.game_id, filter(possible_game, games)))
+
+
+def part2(games: List[Game]) -> int:
+    def min_cubes(game: Game) -> int:
+        cubes_required = reduce(
+            lambda rev1, rev2: {
+                "red": max(rev1.get("red", 0), rev2.get("red", 0)),
+                "green": max(rev1.get("green", 0), rev2.get("green", 0)),
+                "blue": max(rev1.get("blue", 0), rev2.get("blue", 0)),
+            },
+            game.reveals,
+            {"red": 0, "green": 0, "blue": 0},
+        )
+        return cubes_required["red"] * cubes_required["green"] * cubes_required["blue"]
+
+    return sum(map(min_cubes, games))
