@@ -1,12 +1,15 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Set
 
 
 @dataclass
 class Card:
     card_id: int
-    my_numbers: List[int]
-    winning_numbers: List[int]
+    my_numbers: Set[int]
+    winning_numbers: Set[int]
+
+    def matches(self) -> int:
+        return len(self.my_numbers & self.winning_numbers)
 
 
 def parse(lines: str) -> List[Card]:
@@ -19,8 +22,8 @@ def parse(lines: str) -> List[Card]:
         winning_numbers = [*map(int, winning_nums_raw.strip().split())]
         return Card(
             card_id=parsed_card_id,
-            my_numbers=my_numbers,
-            winning_numbers=winning_numbers,
+            my_numbers=set(my_numbers),
+            winning_numbers=set(winning_numbers),
         )
 
     return [*map(parse_card, lines.split("\n"))]
@@ -28,9 +31,17 @@ def parse(lines: str) -> List[Card]:
 
 def part1(cards: List[Card]) -> int:
     def score_points(card: Card) -> int:
-        my_numbers = set(card.my_numbers)
-        winning_numbers = set(card.winning_numbers)
-        wins = len(my_numbers & winning_numbers)
+        wins = card.matches()
         return pow(2, wins - 1) if wins else 0
 
     return sum(map(score_points, cards))
+
+
+def part2(cards: List[Card]) -> int:
+    card_counts = [1] * len(cards)
+    for i, card in enumerate(cards):
+        wins = card.matches()
+        for j in range(wins):
+            if i + j + 1 < len(cards):
+                card_counts[i + j + 1] += card_counts[i]
+    return sum(card_counts)
