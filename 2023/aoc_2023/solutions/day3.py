@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional
 import re
 
 
@@ -35,7 +35,7 @@ def part1(lines: List[str]) -> int:
 
 
 def part2(lines: List[str]) -> int:
-    def search_for_gear(x: int, y_start: int, length: int) -> Tuple[int, int]:
+    def search_for_gear(x: int, y_start: int, length: int) -> Optional[Tuple[int, int]]:
         for i in range(x - 1, x + 2):
             for j in range(y_start - 1, y_start + length + 1):
                 if i >= 0 and i < len(lines) and j >= 0 and j < len(lines[0]):
