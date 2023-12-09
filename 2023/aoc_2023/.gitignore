@@ -1,2 +1,4 @@
 inputs
 .session
+venv
+small*
