@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Tuple
 
 
 @dataclass
@@ -9,22 +9,41 @@ class RangeEntry:
     length: int
 
 
-@dataclass
-class Transformation:
-    name: str
-    entries: List[RangeEntry]
+class TransformationV2:
+    break_points: List[Tuple[int, int]]
+    inv_break_points: List[Tuple[int, int]]
+
+    def __init__(self, entries: List[RangeEntry]):
+        entries = sorted(entries, key=lambda entry: entry.source)
+        break_points: List[Tuple[int, int]] = []
+        last_end = 0
+        for entry in entries:
+            if last_end != entry.source:
+                break_points.append((last_end, 0))
+            diff = entry.destination - entry.source
+            if not break_points or diff != break_points[-1][1]:
+                break_points.append((entry.source, diff))
+            last_end = entry.source + entry.length
+        break_points.append((last_end, 0))
+        self.break_points = break_points
+
+    def __str__(self):
+        return f"TransformationV2(break_points={str(self.break_points)})"
 
     def apply(self, src: int) -> int:
-        for entry in self.entries:
-            if src >= entry.source and src < entry.source + entry.length:
-                return entry.destination + src - entry.source
-        return src
+        last_diff = 0
+        for break_point in self.break_points:
+            start, diff = break_point
+            if start > src:
+                return src + last_diff
+            last_diff = diff
+        return src + last_diff
 
 
 @dataclass
 class Almanac:
     seeds: List[int]
-    maps: List[Transformation]
+    maps: List[TransformationV2]
 
     def apply_all_transformations(self, src: int) -> int:
         for transformation in self.maps:
@@ -39,24 +58,23 @@ def parse(input: str) -> Almanac:
     seeds = [*map(int, seeds_str.strip().split())]
     name = ""
     range_entries_buffer: List[RangeEntry] = []
-    transformations: List[Transformation] = []
+    transformations: List[TransformationV2] = []
     for line in lines[2:]:
         if "map" in line:
             name = line.split()[0]
             continue
         if not line:
-            transformations.append(
-                Transformation(name=name, entries=range_entries_buffer)
-            )
+            transformations.append(TransformationV2(entries=range_entries_buffer))
             range_entries_buffer = []
             continue
         destination, source, length = [*map(int, line.split())]
         range_entries_buffer.append(
             RangeEntry(destination=destination, source=source, length=length)
         )
-    transformations.append(Transformation(name=name, entries=range_entries_buffer))
+    transformations.append(TransformationV2(entries=range_entries_buffer))
     return Almanac(seeds=seeds, maps=transformations)
 
 
 def part1(almanac: Almanac) -> int:
+    print(*map(lambda src: almanac.apply_all_transformations(src), almanac.seeds))
     return min(map(lambda src: almanac.apply_all_transformations(src), almanac.seeds))
