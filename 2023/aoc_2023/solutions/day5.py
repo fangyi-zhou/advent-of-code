@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Tuple
+from itertools import batched
 
 
 @dataclass
@@ -31,13 +32,25 @@ class TransformationV2:
         return f"TransformationV2(break_points={str(self.break_points)})"
 
     def apply(self, src: int) -> int:
+        return self.apply_range((src, 1))[0][0]
+
+    def apply_range(self, src_range: Tuple[int, int]) -> List[Tuple[int, int]]:
+        src_start, src_length = src_range
         last_diff = 0
+        dest_ranges = []
         for break_point in self.break_points:
             start, diff = break_point
-            if start > src:
-                return src + last_diff
+            if start > src_start:
+                range_length = min(start - src_start, src_length)
+                dest_ranges.append((src_start + last_diff, range_length))
+                src_length -= range_length
+                src_start = start
+                if not src_length:
+                    return dest_ranges
             last_diff = diff
-        return src + last_diff
+        if src_length:
+            dest_ranges.append((src_start + last_diff, src_length))
+        return dest_ranges
 
 
 @dataclass
@@ -49,6 +62,14 @@ class Almanac:
         for transformation in self.maps:
             src = transformation.apply(src)
         return src
+
+    def apply_all_transformations_range(
+        self, src_range: Tuple[int, int]
+    ) -> List[Tuple[int, int]]:
+        ranges = [src_range]
+        for transformation in self.maps:
+            ranges = sum([*map(lambda r: transformation.apply_range(r), ranges)], [])
+        return ranges
 
 
 def parse(input: str) -> Almanac:
@@ -76,5 +97,13 @@ def parse(input: str) -> Almanac:
 
 
 def part1(almanac: Almanac) -> int:
-    print(*map(lambda src: almanac.apply_all_transformations(src), almanac.seeds))
     return min(map(lambda src: almanac.apply_all_transformations(src), almanac.seeds))
+
+
+def part2(almanac: Almanac) -> int:
+    seed_ranges = batched(almanac.seeds, 2)
+    min_candidates = []
+    for seed_range in seed_ranges:
+        transformed_ranges = almanac.apply_all_transformations_range(seed_range)
+        min_candidates.append(min(map(lambda r: r[0], transformed_ranges)))
+    return min(min_candidates)
