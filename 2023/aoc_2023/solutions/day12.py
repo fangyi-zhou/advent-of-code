@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from itertools import product
+from sympy.utilities.iterables import multiset_permutations
 
 
 def parse(lines: str) -> List[Tuple[str, List[int]]]:
@@ -32,7 +32,12 @@ def _summarise(pattern: str, replacement: List[str]) -> List[int]:
 def part1(rows: List[Tuple[str, List[int]]]) -> int:
     arrangements = 0
     for pattern, summary in rows:
-        for replacement in product(".#", repeat=pattern.count("?")):
+        unknowns = pattern.count("?")
+        known_damages = pattern.count("#")
+        unknown_damages = sum(summary) - known_damages
+        unknown_operationals = unknowns - unknown_damages
+        replacements = "." * unknown_operationals + "#" * unknown_damages
+        for replacement in multiset_permutations(replacements):
             if _summarise(pattern, replacement) == summary:
                 arrangements += 1
     return arrangements
