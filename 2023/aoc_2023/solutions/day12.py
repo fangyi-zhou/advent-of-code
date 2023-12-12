@@ -1,5 +1,5 @@
-from typing import List, Tuple
-from sympy.utilities.iterables import multiset_permutations
+from typing import List, Tuple, Optional
+from functools import cache
 
 
 def parse(lines: str) -> List[Tuple[str, List[int]]]:
@@ -32,13 +32,18 @@ def _summarise(pattern: str, replacement: List[str]) -> List[int]:
 DEBUG = False
 
 
-def _fill_blanks(pattern: str, expectation: List[int], memory: str = "") -> int:
+@cache
+def _fill_blanks(
+    pattern: str, expectation: Tuple[int, ...], quota: int, last: Optional[str] = None
+) -> int:
     if DEBUG:
-        print(memory, pattern, expectation)
+        print(last, pattern, quota, expectation)
     if not pattern and all(exp == 0 for exp in expectation):
         if DEBUG:
             print("ok")
         return 1
+    if quota == 0:
+        pattern = pattern.replace("?", ".")
     if pattern and not expectation:
         if all(ch != "#" for ch in pattern):
             if DEBUG:
@@ -49,29 +54,27 @@ def _fill_blanks(pattern: str, expectation: List[int], memory: str = "") -> int:
     if not pattern and expectation:
         return 0
     if expectation[0] == 0 and pattern[0] == ".":
-        return _fill_blanks(pattern[1:], expectation[1:], memory + ".")
+        return _fill_blanks(pattern[1:], expectation[1:], quota, ".")
     if expectation[0] == 0 and pattern[0] == "#":
         return 0
     if expectation[0] > 0 and pattern[0] == "#":
-        return _fill_blanks(
-            pattern[1:], [expectation[0] - 1] + expectation[1:], memory + "#"
-        )
+        exp = [expectation[0] - 1] + list(expectation[1:])
+        return _fill_blanks(pattern[1:], tuple(exp), quota, "#")
     if pattern[0] == ".":
-        if memory and memory[-1] == "#" and expectation[0] > 0:
+        if last == "#" and expectation[0] > 0:
             return 0
-        return _fill_blanks(pattern[1:], expectation, memory + ".")
+        return _fill_blanks(pattern[1:], expectation, quota, ".")
     if pattern[0] == "?":
         result = 0
         if expectation[0] > 0:
-            result += _fill_blanks(
-                pattern[1:], [expectation[0] - 1] + expectation[1:], memory + "#"
-            )
-            if memory and memory[-1] == "#":
+            exp = [expectation[0] - 1] + list(expectation[1:])
+            result += _fill_blanks(pattern[1:], tuple(exp), quota - 1, "#")
+            if last == "#":
                 return result
         if expectation[0] == 0:
-            result += _fill_blanks(pattern[1:], expectation[1:], memory + ".")
+            result += _fill_blanks(pattern[1:], expectation[1:], quota, ".")
         else:
-            result += _fill_blanks(pattern[1:], expectation, memory + ".")
+            result += _fill_blanks(pattern[1:], expectation, quota, ".")
         return result
     return 0
 
@@ -79,13 +82,11 @@ def _fill_blanks(pattern: str, expectation: List[int], memory: str = "") -> int:
 def part1(rows: List[Tuple[str, List[int]]]) -> int:
     arrangements = 0
     for pattern, summary in rows:
-        result = _fill_blanks(pattern, summary)
+        known_damages = pattern.count("#")
+        unknown_damages = sum(summary) - known_damages
+        result = _fill_blanks(pattern, tuple(summary), unknown_damages)
         arrangements += result
         # old_result = 0
-        # unknowns = pattern.count("?")
-        # known_damages = pattern.count("#")
-        # unknown_damages = sum(summary) - known_damages
-        # unknown_operationals = unknowns - unknown_damages
         # replacements = "." * unknown_operationals + "#" * unknown_damages
         # for replacement in multiset_permutations(replacements):
         #     if _summarise(pattern, replacement) == summary:
@@ -95,11 +96,13 @@ def part1(rows: List[Tuple[str, List[int]]]) -> int:
     return arrangements
 
 
-# def part2(rows: List[Tuple[str, List[int]]]) -> int:
-#     arrangements = 0
-#     for pattern, summary in rows:
-#         pattern = "?".join([pattern] * 5)
-#         summary = sum([summary] * 5, [])
-#         result = _fill_blanks(pattern, summary)
-#         arrangements += result
-#     return arrangements
+def part2(rows: List[Tuple[str, List[int]]]) -> int:
+    arrangements = 0
+    for pattern, summary in rows:
+        known_damages = pattern.count("#")
+        unknown_damages = sum(summary) - known_damages
+        pattern = "?".join([pattern] * 5)
+        summary = sum([summary] * 5, [])
+        result = _fill_blanks(pattern, tuple(summary), unknown_damages * 5)
+        arrangements += result
+    return arrangements
