@@ -18,8 +18,7 @@ module M = struct
     let matrix = Array.make_matrix ~dimx ~dimy Empty in
     List.iteri
       ~f:(fun x line ->
-        String.iteri ~f:(fun y ch -> matrix.(x).(y) <- tile_of_char ch) line
-        )
+        String.iteri ~f:(fun y ch -> matrix.(x).(y) <- tile_of_char ch) line )
       lines ;
     (matrix, dimx, dimy)
 
@@ -70,8 +69,7 @@ module M = struct
           let occupied_counts =
             List.count
               ~f:(fun (dx, dy) ->
-                try Poly.(old.(x + dx).(y + dy) = Occupied) with _ -> false
-                )
+                try Poly.(old.(x + dx).(y + dy) = Occupied) with _ -> false )
               neighbours
           in
           if occupied_counts = 0 && Poly.(curr = Empty) then Occupied

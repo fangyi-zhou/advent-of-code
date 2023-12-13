@@ -11,10 +11,8 @@ module M = struct
         let intervals = String.split ~on:',' intervals in
         let intervals =
           List.filter_mapi
-            ~f:
-              (fun idx -> function
-                | "x" -> None
-                | interval -> Some (Int.of_string interval, idx) )
+            ~f:(fun idx -> function
+              | "x" -> None | interval -> Some (Int.of_string interval, idx) )
             intervals
         in
         (timestamp, intervals)

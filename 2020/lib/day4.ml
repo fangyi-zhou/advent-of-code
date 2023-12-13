@@ -62,7 +62,7 @@ module M = struct
     let f =
       validate_passport ~byr:Option.is_some ~iyr:Option.is_some
         ~eyr:Option.is_some ~hgt:Option.is_some ~hcl:Option.is_some
-        ~ecl:Option.is_some ~pid:Option.is_some ~cid:(fun _ -> true)
+        ~ecl:Option.is_some ~pid:Option.is_some ~cid:(fun _ -> true )
     in
     let ans = List.count ~f data in
     print_endline_int ans
