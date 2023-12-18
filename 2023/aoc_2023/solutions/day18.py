@@ -52,3 +52,27 @@ def part1(plan: List[Tuple[str, int, str]]) -> int:
     #             print("#" if (x, y) in walls else ".", end="")
     #     print()
     return area // 2 + 1
+
+
+DIRECTION_FROM_LAST_DIGIT = ["R", "D", "L", "U"]
+
+
+def part2(plan: List[Tuple[str, int, str]]) -> int:
+    curr_x, curr_y = 0, 0
+    area = 0
+    for line in plan:
+        _, _, colour = line
+        direction = DIRECTION_FROM_LAST_DIGIT[int(colour[-1])]
+        num = int(colour[1:-1], 16)
+        dx, dy = DIRECTION[direction]
+        if direction == "U":
+            base = -curr_x
+        elif direction == "D":
+            base = curr_x
+        elif direction == "L":
+            base = curr_y
+        else:
+            base = -curr_y
+        area += num * (base + 1)
+        curr_x, curr_y = curr_x + dx * num, curr_y + dy * num
+    return area // 2 + 1
