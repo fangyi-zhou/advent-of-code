@@ -5,9 +5,9 @@ def parse(lines: str) -> List[str]:
     return lines.split("\n")
 
 
-def part1(maze: List[str]) -> int:
-    start_pos = (0, -1)
-    start_dir = (0, 1)
+def _energise(
+    maze: List[str], start_pos: Tuple[int, int], start_dir: Tuple[int, int]
+) -> int:
     visited: Set[Tuple[int, int]] = set()
     processed: Set[Tuple[Tuple[int, int], Tuple[int, int]]] = set()
     worklist = [(start_pos, start_dir)]
@@ -50,3 +50,28 @@ def part1(maze: List[str]) -> int:
     #     print()
 
     return len(visited)
+
+
+def part1(maze: List[str]) -> int:
+    start_pos = (0, -1)
+    start_dir = (0, 1)
+    return _energise(maze, start_pos, start_dir)
+
+
+def part2(maze: List[str]) -> int:
+    max_energised = 0
+    for i in range(len(maze)):
+        start_pos = (i, -1)
+        start_dir = (0, 1)
+        max_energised = max(max_energised, _energise(maze, start_pos, start_dir))
+        start_pos = (i, len(maze[0]))
+        start_dir = (0, -1)
+        max_energised = max(max_energised, _energise(maze, start_pos, start_dir))
+    for j in range(len(maze[0])):
+        start_pos = (-1, j)
+        start_dir = (1, 0)
+        max_energised = max(max_energised, _energise(maze, start_pos, start_dir))
+        start_pos = (len(maze), j)
+        start_dir = (-1, 0)
+        max_energised = max(max_energised, _energise(maze, start_pos, start_dir))
+    return max_energised
