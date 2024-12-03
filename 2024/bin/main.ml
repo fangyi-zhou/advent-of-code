@@ -15,6 +15,7 @@ let () =
     match day with
     | "1" -> (module Day1)
     | "2" -> (module Day2)
+    | "3" -> (module Day3)
     | _ -> failwith "invalid day"
   in
   Day.run inputs ; In_channel.close file

@@ -1,6 +1,6 @@
 (library
  (name aoc)
  (inline_tests)
- (libraries base stdio unix)
+ (libraries base stdio unix re)
  (preprocess
   (pps ppx_expect)))
