@@ -55,7 +55,10 @@ include Day.Make (M)
 
 let example = "3   4\n4   3\n2   5\n1   3\n3   9\n3   3"
 
-let%expect_test _ = run example ; [%expect {|
+let%expect_test _ =
+  run example ;
+  [%expect
+    {|
                                     11
                                     31
                                     |}]
