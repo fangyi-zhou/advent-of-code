@@ -101,7 +101,6 @@ if __name__ == '__main__':
     assert ans == 1227775554, f"example mismatch: {ans}"
     print('part1 example:', ans)
 
-
     ans2 = part2(data)
     assert ans2 == 4174379265, f"part2 example mismatch: {ans2}"
     print('part2 example:', ans2)
